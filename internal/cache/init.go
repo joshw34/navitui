@@ -23,7 +23,7 @@ func Init() (*Cache, error) {
 
 	dbFile := filepath.Join(cacheDir, "cache.db")
 	dbPragmas := "?_pragma=foreign_keys(1)"
-	db, err := sql.Open("sqlite", filepath.Join(dbFile, dbPragmas))
+	db, err := sql.Open("sqlite", dbFile+dbPragmas)
 	if err != nil {
 		return nil, err
 	}

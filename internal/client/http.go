@@ -8,6 +8,7 @@ import (
 	"net/url"
 )
 
+// TODO: Add http return code check to avoid json parsing error html
 func (c *Client) serverRequest(reqType string, extraParams url.Values) (*response, error) {
 	u, err := c.getURL(reqType, extraParams)
 	if err != nil {

@@ -2,6 +2,6 @@
 package types
 
 type Artist struct {
-	Name string `json:"name"`
-	ID   string `json:"id"`
+	ID   string
+	Name string
 }
