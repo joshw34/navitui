@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"net/http"
 	"net/url"
 )
@@ -44,10 +45,8 @@ func (c *Client) getURL(req string, extraParams url.Values) (string, error) {
 	q.Set("v", c.version)
 	q.Set("c", c.client)
 	q.Set("f", c.format)
-
-	for key, value := range extraParams {
-		q[key] = value
-	}
+	maps.Copy(q, extraParams)
 	u.RawQuery = q.Encode()
+
 	return u.String(), nil
 }
