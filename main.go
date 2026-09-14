@@ -7,24 +7,23 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/joshw34/navitui/internal/cache"
 	"github.com/joshw34/navitui/internal/client"
+	"github.com/joshw34/navitui/internal/controller"
+	"github.com/joshw34/navitui/internal/ui"
 )
 
 func main() {
 	loadEnv()
-	client := client.Init(os.Getenv("NV_URL"), os.Getenv("NV_USER"), os.Getenv("NV_PASS"))
-	cache, err := cache.Init()
+	srv := client.New(os.Getenv("NV_URL"), os.Getenv("NV_USER"), os.Getenv("NV_PASS"))
+	db, err := cache.New()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	defer cache.Data.Close()
-
-	a, err := client.GetArtists()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	err = cache.UpdateArtists(a)
+	defer func() {
+		_ = db.Data.Close()
+	}()
+	ctrl := controller.New(srv, db)
+	err = ui.StartUI(ctrl)
 	if err != nil {
 		fmt.Println(err)
 		return

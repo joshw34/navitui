@@ -10,7 +10,7 @@ type Client struct {
 	format   string
 }
 
-func Init(baseURL, username, password string) *Client {
+func New(baseURL, username, password string) *Client {
 	var client Client
 	client.baseURL = baseURL
 	client.username = username

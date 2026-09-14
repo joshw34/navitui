@@ -14,7 +14,7 @@ type Cache struct {
 	Data *sql.DB
 }
 
-func Init() (*Cache, error) {
+func New() (*Cache, error) {
 	cacheDir := filepath.Join(xdg.CacheHome, "navitui")
 	err := os.MkdirAll(cacheDir, 0o700)
 	if err != nil {
@@ -39,9 +39,9 @@ func Init() (*Cache, error) {
 }
 
 func (c *Cache) createTables() (sql.Result, error) {
-	sql := `CREATE TABLE IF NOT EXISTS artists (
-		id STRING PRIMARY KEY,
+	query := `CREATE TABLE IF NOT EXISTS artists (
+		id TEXT PRIMARY KEY,
 		name TEXT NOT NULL
 	);`
-	return c.Data.Exec(sql)
+	return c.Data.Exec(query)
 }

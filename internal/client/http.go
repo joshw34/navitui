@@ -17,9 +17,15 @@ func (c *Client) serverRequest(reqType string, extraParams url.Values) (*respons
 
 	r, err := http.Get(u)
 	if err != nil {
+
 		return nil, err
 	}
-	defer r.Body.Close()
+	defer func() {
+		_ = r.Body.Close()
+	}()
+	if r.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http error: %d/n", r.StatusCode)
+	}
 
 	var resp response
 	if err := json.NewDecoder(r.Body).Decode(&resp); err != nil {
