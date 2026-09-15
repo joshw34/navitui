@@ -18,7 +18,7 @@ func newRootModel(ctrl *controller.Controller) rootModel {
 	return rootModel{
 		current:     main,
 		mainMenu:    newMainModel(),
-		artistsMenu: newArtistsModel(),
+		artistsPage: newArtistsModel(),
 		ctrl:        ctrl,
 	}
 }

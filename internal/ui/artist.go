@@ -7,12 +7,12 @@ import (
 	"github.com/joshw34/navitui/internal/types"
 )
 
-type artistsModel struct {
+type artistModel struct {
 	cursor int
-	data   []types.Artist
+	data   []types.Album
 }
 
-func (a artistsModel) Update(msg tea.Msg) (artistsModel, tea.Cmd) {
+func (a artistModel) Update(msg tea.Msg) (artistModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
@@ -24,20 +24,22 @@ func (a artistsModel) Update(msg tea.Msg) (artistsModel, tea.Cmd) {
 			if a.cursor < len(a.data)-1 {
 				a.cursor++
 			}
+		case "enter":
+			return a, func() tea.Msg { return getAlbumMsg{albumID: a.data[a.cursor].ID} }
 		}
 	}
 	return a, nil
 }
 
-func (a artistsModel) View() string {
+func (a artistModel) View() string {
 	var s string
-	for i, artist := range a.data {
+	for i, album := range a.data {
 		cursor := " "
 		if a.cursor == i {
 			cursor = ">"
 		}
 
-		s += fmt.Sprintf("%s %s\n", cursor, artist.Name)
+		s += fmt.Sprintf("%s %s\n", cursor, album.Name)
 	}
 	s += "\nPress q to quit.\n"
 	return s

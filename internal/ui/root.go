@@ -15,12 +15,16 @@ type page int
 const (
 	main page = iota
 	artists
+	artist
+	album
 )
 
 type rootModel struct {
 	current     page
 	mainMenu    mainModel
-	artistsMenu artistsModel
+	artistsPage artistsModel
+	artistPage  artistModel
+	albumPage   albumModel
 	ctrl        *controller.Controller
 }
 
@@ -39,15 +43,43 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.err != nil {
 			return m, nil
 		}
-		m.artistsMenu.data = msg.artists
+		m.artistsPage.data = msg.data
 		return m, nil
+
+	case getArtistMsg:
+		m.current = artist
+		return m, loadArtist(m.ctrl, msg.artistID)
+
+	case artistLoadedMsg:
+		if msg.err != nil {
+			return m, nil
+		}
+		m.artistPage.data = msg.data
+		return m, nil
+
+	case getAlbumMsg:
+		m.current = album
+		return m, loadAlbum(m.ctrl, msg.albumID)
+
+	case albumLoadedMsg:
+		if msg.err != nil {
+			return m, nil
+		}
+		m.albumPage.data = msg.data
+		return m, nil
+
 	}
+
 	var cmd tea.Cmd
 	switch m.current {
 	case main:
 		m.mainMenu, cmd = m.mainMenu.Update(msg)
 	case artists:
-		m.artistsMenu, cmd = m.artistsMenu.Update(msg)
+		m.artistsPage, cmd = m.artistsPage.Update(msg)
+	case artist:
+		m.artistPage, cmd = m.artistPage.Update(msg)
+	case album:
+		m.albumPage, cmd = m.albumPage.Update(msg)
 	}
 	return m, cmd
 }
@@ -58,7 +90,11 @@ func (m rootModel) View() tea.View {
 	case main:
 		s = m.mainMenu.View()
 	case artists:
-		s = m.artistsMenu.View()
+		s = m.artistsPage.View()
+	case artist:
+		s = m.artistPage.View()
+	case album:
+		s = m.albumPage.View()
 	}
 	v := tea.NewView(s)
 	v.AltScreen = true
