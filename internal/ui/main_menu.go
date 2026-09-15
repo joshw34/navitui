@@ -1,47 +1,39 @@
 package ui
 
 import (
-	"fmt"
-
+	"charm.land/bubbles/v2/list"
 	tea "charm.land/bubbletea/v2"
 )
 
+// in artists_menu.go
+type mainItem struct {
+	option string
+	action page
+}
+
+func (a mainItem) Title() string       { return a.option }
+func (a mainItem) Description() string { return "" }       // or genre, etc.
+func (a mainItem) FilterValue() string { return a.option } // what filtering matches on
+
 type mainModel struct {
-	choices []string
-	cursor  int
+	list list.Model
 }
 
 func (m mainModel) Update(msg tea.Msg) (mainModel, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
-		switch msg.String() {
-		case "up", "k":
-			if m.cursor > 0 {
-				m.cursor--
-			}
-		case "down", "j":
-			if m.cursor < len(m.choices)-1 {
-				m.cursor++
-			}
-		case "enter":
-			return m, func() tea.Msg {
-				return getArtistsMsg{}
+	if key, ok := msg.(tea.KeyPressMsg); ok && key.String() == "enter" {
+		if it, ok := m.list.SelectedItem().(mainItem); ok {
+			switch it.action {
+			case artists:
+				return m, func() tea.Msg { return getArtistsMsg{} }
 			}
 		}
 	}
-	return m, nil
+
+	var cmd tea.Cmd
+	m.list, cmd = m.list.Update(msg)
+	return m, cmd
 }
 
 func (m mainModel) View() string {
-	var s string
-	for i, choice := range m.choices {
-		cursor := " "
-		if m.cursor == i {
-			cursor = ">"
-		}
-
-		s += fmt.Sprintf("%s %s\n", cursor, choice)
-		s += "\nPress q to quit.\n"
-	}
-	return s
+	return m.list.View()
 }
