@@ -6,15 +6,47 @@ import (
 	"github.com/joshw34/navitui/internal/types"
 )
 
-type getArtistsMsg struct{}
-type artistsLoadedMsg struct {
-	artists []types.Artist
-	err     error
+type getArtistsListMsg struct{}
+type artistsListLoadedMsg struct {
+	data []types.Artist
+	err  error
 }
 
-func loadArtists(ctrl *controller.Controller) tea.Cmd {
+type getArtistMsg struct {
+	artistID string
+}
+
+type artistLoadedMsg struct {
+	data []types.Album
+	err  error
+}
+
+type getAlbumMsg struct {
+	albumID string
+}
+
+type albumLoadedMsg struct {
+	data []types.Song
+	err  error
+}
+
+func loadArtistsList(ctrl *controller.Controller) tea.Cmd {
 	return func() tea.Msg {
-		artists, err := ctrl.GetArtists()
-		return artistsLoadedMsg{artists: artists, err: err}
+		data, err := ctrl.GetArtists()
+		return artistsListLoadedMsg{data: data, err: err}
+	}
+}
+
+func loadArtist(ctrl *controller.Controller, artistID string) tea.Cmd {
+	return func() tea.Msg {
+		data, err := ctrl.GetAlbumsByArtist(artistID)
+		return artistLoadedMsg{data: data, err: err}
+	}
+}
+
+func loadAlbum(ctrl *controller.Controller, albumID string) tea.Cmd {
+	return func() tea.Msg {
+		data, err := ctrl.GetSongsByAlbum(albumID)
+		return albumLoadedMsg{data: data, err: err}
 	}
 }

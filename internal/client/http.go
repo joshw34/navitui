@@ -9,7 +9,7 @@ import (
 )
 
 // TODO: Add http return code check to avoid json parsing error html
-func (c *Client) serverRequest(reqType string, extraParams url.Values) (*response, error) {
+func (c *Client) serverRequest(reqType string, extraParams url.Values) (*jsonResponse, error) {
 	u, err := c.getURL(reqType, extraParams)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (c *Client) serverRequest(reqType string, extraParams url.Values) (*respons
 		return nil, fmt.Errorf("http error: %d/n", r.StatusCode)
 	}
 
-	var resp response
+	var resp jsonResponse
 	if err := json.NewDecoder(r.Body).Decode(&resp); err != nil {
 		return nil, err
 	}
