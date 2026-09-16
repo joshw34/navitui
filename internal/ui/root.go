@@ -87,6 +87,11 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.albumPage = m.albumPage.buildList(msg.data)
 		return m, nil
 
+	case playSongMsg:
+		return m, func() tea.Msg {
+			_ = m.ctrl.Play(msg.songID)
+			return nil
+		}
 	}
 
 	var cmd tea.Cmd

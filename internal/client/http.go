@@ -40,6 +40,13 @@ func (c *Client) serverRequest(reqType string, extraParams url.Values) (*jsonRes
 	return &resp, nil
 }
 
+func (c *Client) GetStreamURL(songID string) (string, error) {
+	v := url.Values{}
+	v.Set("id", songID)
+	v.Set("format", "raw")
+	return c.getURL("stream", v)
+}
+
 func (c *Client) getURL(req string, extraParams url.Values) (string, error) {
 	u, err := url.Parse(c.baseURL + req)
 	if err != nil {

@@ -30,6 +30,10 @@ type albumLoadedMsg struct {
 	err  error
 }
 
+type playSongMsg struct {
+	songID string
+}
+
 func loadArtistsList(ctrl *controller.Controller) tea.Cmd {
 	return func() tea.Msg {
 		data, err := ctrl.GetArtists()

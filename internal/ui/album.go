@@ -37,11 +37,11 @@ type albumModel struct {
 }
 
 func (a albumModel) Update(msg tea.Msg) (albumModel, tea.Cmd) {
-	/*if key, ok := msg.(tea.KeyPressMsg); ok && key.String() == "enter" {
+	if key, ok := msg.(tea.KeyPressMsg); ok && key.String() == "enter" {
 		if it, ok := a.list.SelectedItem().(albumItem); ok {
-			return a, func() tea.Msg { return getAlbumMsg{albumID: it.songs.ID} }
+			return a, func() tea.Msg { return playSongMsg{songID: it.songs.ID} }
 		}
-	}*/
+	}
 
 	var cmd tea.Cmd
 	a.list, cmd = a.list.Update(msg)

@@ -8,6 +8,7 @@ import (
 	"github.com/joshw34/navitui/internal/cache"
 	"github.com/joshw34/navitui/internal/client"
 	"github.com/joshw34/navitui/internal/controller"
+	"github.com/joshw34/navitui/internal/player"
 	"github.com/joshw34/navitui/internal/ui"
 )
 
@@ -22,7 +23,12 @@ func main() {
 	defer func() {
 		_ = db.Data.Close()
 	}()
-	ctrl := controller.New(srv, db)
+	play, err := player.New()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	ctrl := controller.New(srv, db, play)
 	if db.SyncRequired {
 		err = ctrl.ResyncLibrary()
 	}
