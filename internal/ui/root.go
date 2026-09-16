@@ -14,26 +14,28 @@ type page int
 
 const (
 	main page = iota
-	artists
+	artistsList
 	artist
 	album
 )
 
 type rootModel struct {
-	current     page
-	previous    []page
-	mainMenu    mainModel
-	artistsPage artistsModel
-	artistPage  artistModel
-	albumPage   albumModel
-	ctrl        *controller.Controller
+	current         page
+	previous        []page
+	mainMenu        mainModel
+	artistsListPage artistsListModel
+	artistPage      artistModel
+	albumPage       albumModel
+	ctrl            *controller.Controller
 }
 
 func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.mainMenu.list.SetSize(msg.Width, msg.Height)
-		m.artistsPage.list.SetSize(msg.Width, msg.Height)
+		m.artistsListPage.list.SetSize(msg.Width, msg.Height)
+		m.artistPage.list.SetSize(msg.Width, msg.Height)
+		m.albumPage.list.SetSize(msg.Width, msg.Height)
 		return m, nil
 
 	case tea.KeyPressMsg:
@@ -49,16 +51,16 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.previous = m.previous[:len(m.previous)-1]
 		}
 
-	case getArtistsMsg:
+	case getArtistsListMsg:
 		m.previous = append(m.previous, m.current)
-		m.current = artists
-		return m, loadArtists(m.ctrl)
+		m.current = artistsList
+		return m, loadArtistsList(m.ctrl)
 
-	case artistsLoadedMsg:
+	case artistsListLoadedMsg:
 		if msg.err != nil {
 			return m, nil
 		}
-		m.artistsPage = m.artistsPage.buildList(msg.data)
+		m.artistsListPage = m.artistsListPage.buildList(msg.data)
 		return m, nil
 
 	case getArtistMsg:
@@ -70,7 +72,7 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.err != nil {
 			return m, nil
 		}
-		m.artistPage.data = msg.data
+		m.artistPage = m.artistPage.buildList(msg.data)
 		return m, nil
 
 	case getAlbumMsg:
@@ -82,7 +84,7 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.err != nil {
 			return m, nil
 		}
-		m.albumPage.data = msg.data
+		m.albumPage = m.albumPage.buildList(msg.data)
 		return m, nil
 
 	}
@@ -91,8 +93,8 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.current {
 	case main:
 		m.mainMenu, cmd = m.mainMenu.Update(msg)
-	case artists:
-		m.artistsPage, cmd = m.artistsPage.Update(msg)
+	case artistsList:
+		m.artistsListPage, cmd = m.artistsListPage.Update(msg)
 	case artist:
 		m.artistPage, cmd = m.artistPage.Update(msg)
 	case album:
@@ -106,8 +108,8 @@ func (m rootModel) View() tea.View {
 	switch m.current {
 	case main:
 		s = m.mainMenu.View()
-	case artists:
-		s = m.artistsPage.View()
+	case artistsList:
+		s = m.artistsListPage.View()
 	case artist:
 		s = m.artistPage.View()
 	case album:

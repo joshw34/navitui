@@ -19,6 +19,7 @@ func (c *Client) extractArtists(r *jsonResponse) []types.Artist {
 			var a types.Artist
 			a.ID = artist.ID
 			a.Name = artist.Name
+			a.AlbumCount = artist.AlbumCount
 			result = append(result, a)
 		}
 	}

@@ -17,16 +17,18 @@ func StartUI(ctrl *controller.Controller) error {
 
 func newRootModel(ctrl *controller.Controller) rootModel {
 	return rootModel{
-		current:     main,
-		previous:    []page{},
-		mainMenu:    newMainModel(),
-		artistsPage: newArtistsModel(),
-		ctrl:        ctrl,
+		current:         main,
+		previous:        []page{},
+		mainMenu:        newMainModel(),
+		artistsListPage: newArtistsListModel(),
+		artistPage:      newArtistModel(),
+		albumPage:       newAlbumModel(),
+		ctrl:            ctrl,
 	}
 }
 
 func newMainModel() mainModel {
-	options := []mainItem{{option: "Artists", action: artists}}
+	options := []mainItem{{option: "Artists", action: artistsList}}
 
 	items := make([]list.Item, len(options))
 	for i, opt := range options {
@@ -39,8 +41,20 @@ func newMainModel() mainModel {
 	return mainModel{list: l}
 }
 
-func newArtistsModel() artistsModel {
+func newArtistsListModel() artistsListModel {
 	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 	l.Title = "Artists"
-	return artistsModel{list: l}
+	return artistsListModel{list: l}
+}
+
+func newArtistModel() artistModel {
+	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	l.Title = "Albums"
+	return artistModel{list: l}
+}
+
+func newAlbumModel() albumModel {
+	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	l.Title = "Tracks"
+	return albumModel{list: l}
 }

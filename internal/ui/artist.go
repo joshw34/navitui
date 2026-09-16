@@ -3,44 +3,48 @@ package ui
 import (
 	"fmt"
 
+	"charm.land/bubbles/v2/list"
 	tea "charm.land/bubbletea/v2"
 	"github.com/joshw34/navitui/internal/types"
 )
 
+type artistItem struct {
+	album types.Album
+}
+
+func (a artistItem) Title() string { return a.album.Name }
+
+func (a artistItem) Description() string {
+	return fmt.Sprintf("%s", yearLabel(a.album.Year))
+}
+
+func (a artistItem) FilterValue() string { return a.album.Name }
+
+func (a artistModel) buildList(data []types.Album) artistModel {
+	items := make([]list.Item, len(data))
+	for i, album := range data {
+		items[i] = artistItem{album: album}
+	}
+	a.list.SetItems(items)
+	return a
+}
+
 type artistModel struct {
-	cursor int
-	data   []types.Album
+	list list.Model
 }
 
 func (a artistModel) Update(msg tea.Msg) (artistModel, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
-		switch msg.String() {
-		case "up", "k":
-			if a.cursor > 0 {
-				a.cursor--
-			}
-		case "down", "j":
-			if a.cursor < len(a.data)-1 {
-				a.cursor++
-			}
-		case "enter":
-			return a, func() tea.Msg { return getAlbumMsg{albumID: a.data[a.cursor].ID} }
+	if key, ok := msg.(tea.KeyPressMsg); ok && key.String() == "enter" {
+		if it, ok := a.list.SelectedItem().(artistItem); ok {
+			return a, func() tea.Msg { return getAlbumMsg{albumID: it.album.ID} }
 		}
 	}
-	return a, nil
+
+	var cmd tea.Cmd
+	a.list, cmd = a.list.Update(msg)
+	return a, cmd
 }
 
 func (a artistModel) View() string {
-	var s string
-	for i, album := range a.data {
-		cursor := " "
-		if a.cursor == i {
-			cursor = ">"
-		}
-
-		s += fmt.Sprintf("%s %s\n", cursor, album.Name)
-	}
-	s += "\nPress q to quit.\n"
-	return s
+	return a.list.View()
 }

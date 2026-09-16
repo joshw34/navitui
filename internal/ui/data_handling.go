@@ -6,8 +6,8 @@ import (
 	"github.com/joshw34/navitui/internal/types"
 )
 
-type getArtistsMsg struct{}
-type artistsLoadedMsg struct {
+type getArtistsListMsg struct{}
+type artistsListLoadedMsg struct {
 	data []types.Artist
 	err  error
 }
@@ -30,10 +30,10 @@ type albumLoadedMsg struct {
 	err  error
 }
 
-func loadArtists(ctrl *controller.Controller) tea.Cmd {
+func loadArtistsList(ctrl *controller.Controller) tea.Cmd {
 	return func() tea.Msg {
 		data, err := ctrl.GetArtists()
-		return artistsLoadedMsg{data: data, err: err}
+		return artistsListLoadedMsg{data: data, err: err}
 	}
 }
 

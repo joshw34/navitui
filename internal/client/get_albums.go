@@ -25,6 +25,9 @@ func (c *Client) extractAlbumsFromArtist(r *jsonResponse) ([]types.Album, error)
 		a.ID = r.ID
 		a.ArtistID = r.ArtistID
 		a.Name = r.Name
+		for _, g := range r.Genres {
+			a.Genres = append(a.Genres, g.Name)
+		}
 		a.Year = r.Year
 		a.Duration = r.Duration
 		a.SongCount = r.SongCount

@@ -42,13 +42,15 @@ func (c *Cache) createTables() (sql.Result, error) {
 	schema := `
 		CREATE TABLE IF NOT EXISTS artists (
 			id TEXT PRIMARY KEY,
-			name TEXT NOT NULL
+			name TEXT NOT NULL,
+			albumCount INTEGER NOT NULL
 		);
 
 		CREATE TABLE IF NOT EXISTS albums (
     		 id TEXT PRIMARY KEY,
     		 artistId TEXT NOT NULL REFERENCES artists(id) ON DELETE CASCADE,
     		 name TEXT NOT NULL,
+		     genres TEXT,
     		 year INTEGER NOT NULL DEFAULT 0,
     		 duration INTEGER NOT NULL,
     		 songCount INTEGER NOT NULL
@@ -61,6 +63,7 @@ func (c *Cache) createTables() (sql.Result, error) {
 		    artistId TEXT NOT NULL REFERENCES artists(id) ON DELETE CASCADE,
 		    albumId TEXT NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
 			title TEXT NOT NULL,
+		    filetype TEXT NOT NULL,
 		    track INTEGER NOT NULL DEFAULT 0,
 		    year INTEGER NOT NULL DEFAULT 0,
 		    duration INTEGER NOT NULL,

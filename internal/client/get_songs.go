@@ -26,6 +26,7 @@ func (c *Client) extractSongsFromAlbum(r *jsonResponse) ([]types.Song, error) {
 		s.ArtistID = r.ArtistID
 		s.AlbumID = r.AlbumID
 		s.Title = r.Title
+		s.FileType = r.FileType
 		s.Track = r.Track
 		s.Year = r.Year
 		s.Duration = r.Duration
