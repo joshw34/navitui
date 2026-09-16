@@ -2,6 +2,7 @@ package client
 
 import (
 	"net/url"
+	"strconv"
 
 	"github.com/joshw34/navitui/internal/types"
 )
@@ -13,12 +14,38 @@ func (c *Client) GetSongsByAlbum(searchId string) ([]types.Song, error) {
 	if err != nil {
 		return nil, err
 	}
-	return c.extractSongsFromAlbum(r)
+	return c.extractSongs(r.SubResp.AlbumSongs.Songs)
 }
 
-func (c *Client) extractSongsFromAlbum(r *jsonResponse) ([]types.Song, error) {
+func (c *Client) GetAllSongs() ([]types.Song, error) {
+	offset := 0
+	size := 500
 	var result []types.Song
-	data := r.SubResp.Album.Songs
+	for {
+		v := url.Values{}
+		v.Set("query", " ")
+		v.Set("artistCount", "0")
+		v.Set("albumCount", "0")
+		v.Set("songCount", strconv.Itoa(size))
+		v.Set("songOffset", strconv.Itoa(offset))
+		r, err := c.serverRequest("search2", v)
+		if err != nil {
+			return nil, err
+		}
+		if r.SubResp.Search2.Songs == nil {
+			return result, nil
+		}
+		extracted, err := c.extractSongs(r.SubResp.Search2.Songs)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, extracted...)
+		offset += size
+	}
+}
+
+func (c *Client) extractSongs(data []jsonSong) ([]types.Song, error) {
+	var result []types.Song
 
 	for _, r := range data {
 		var s types.Song

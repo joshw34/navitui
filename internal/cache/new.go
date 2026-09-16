@@ -11,7 +11,8 @@ import (
 )
 
 type Cache struct {
-	Data *sql.DB
+	Data         *sql.DB
+	SyncRequired bool
 }
 
 func New() (*Cache, error) {
@@ -22,6 +23,9 @@ func New() (*Cache, error) {
 	}
 
 	dbFile := filepath.Join(cacheDir, "cache.db")
+	_, err = os.Stat(dbFile)
+	newDB := os.IsNotExist(err)
+
 	dbPragmas := "?_pragma=foreign_keys=1"
 	db, err := sql.Open("sqlite", dbFile+dbPragmas)
 	if err != nil {
@@ -30,6 +34,7 @@ func New() (*Cache, error) {
 
 	var result Cache
 	result.Data = db
+	result.SyncRequired = newDB
 	_, err = result.createTables()
 	if err != nil {
 		_ = db.Close()
@@ -48,7 +53,7 @@ func (c *Cache) createTables() (sql.Result, error) {
 
 		CREATE TABLE IF NOT EXISTS albums (
     		 id TEXT PRIMARY KEY,
-    		 artistId TEXT NOT NULL REFERENCES artists(id) ON DELETE CASCADE,
+    		 artistId TEXT NOT NULL,
     		 name TEXT NOT NULL,
 		     genres TEXT,
     		 year INTEGER NOT NULL DEFAULT 0,
@@ -60,8 +65,8 @@ func (c *Cache) createTables() (sql.Result, error) {
 		
 		CREATE TABLE IF NOT EXISTS songs (
 		    id TEXT PRIMARY KEY,
-		    artistId TEXT NOT NULL REFERENCES artists(id) ON DELETE CASCADE,
-		    albumId TEXT NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
+		    artistId TEXT NOT NULL,
+		    albumId TEXT NOT NULL,
 			title TEXT NOT NULL,
 		    filetype TEXT NOT NULL,
 		    track INTEGER NOT NULL DEFAULT 0,

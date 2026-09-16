@@ -23,6 +23,13 @@ func main() {
 		_ = db.Data.Close()
 	}()
 	ctrl := controller.New(srv, db)
+	if db.SyncRequired {
+		err = ctrl.ResyncLibrary()
+	}
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	err = ui.StartUI(ctrl)
 	if err != nil {
 		fmt.Println(err)

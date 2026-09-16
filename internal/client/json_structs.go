@@ -5,11 +5,13 @@ type jsonResponse struct {
 }
 
 type jsonSubsonicResponse struct {
-	Status  string                    `json:"status"`
-	Artist  jsonArtist                `json:"artist"`
-	Artists jsonArtistList            `json:"artists"`
-	Album   jsonAlbum                 `json:"album"`
-	Error   jsonSubsonicResponseError `json:"error"`
+	Status       string                    `json:"status"`
+	ArtistAlbums jsonArtistAlbums          `json:"artist"`
+	AllArtists   jsonAllArtists            `json:"artists"`
+	AlbumSongs   jsonAlbumSongs            `json:"album"`
+	AllAlbums    jsonAllAlbums             `json:"albumList"`
+	Search2      jsonSearch2               `json:"searchResult2"`
+	Error        jsonSubsonicResponseError `json:"error"`
 }
 
 type jsonSubsonicResponseError struct {
@@ -17,7 +19,7 @@ type jsonSubsonicResponseError struct {
 	Message string `json:"message"`
 }
 
-type jsonArtistList struct {
+type jsonAllArtists struct {
 	Indexes []struct {
 		Artists []struct {
 			ID         string `json:"id"`
@@ -27,30 +29,42 @@ type jsonArtistList struct {
 	} `json:"index"`
 }
 
-type jsonArtist struct {
-	Albums []struct {
-		ID       string `json:"id"`
-		ArtistID string `json:"artistId"`
-		Name     string `json:"name"`
-		Genres   []struct {
-			Name string `json:"name"`
-		} `json:"genres"`
-		Year      int `json:"year"`
-		Duration  int `json:"duration"`
-		SongCount int `json:"songCount"`
-	} `json:"album"`
+type jsonArtistAlbums struct {
+	Albums []jsonAlbum `json:"album"`
+}
+
+type jsonAllAlbums struct {
+	Albums []jsonAlbum `json:"album"`
+}
+
+type jsonAlbumSongs struct {
+	Songs []jsonSong `json:"song"`
+}
+
+type jsonSearch2 struct {
+	Songs []jsonSong `json:"song"`
 }
 
 type jsonAlbum struct {
-	Songs []struct {
-		ID       string `json:"id"`
-		ArtistID string `json:"artistId"`
-		AlbumID  string `json:"albumId"`
-		Title    string `json:"title"`
-		FileType string `json:"suffix"`
-		Track    int    `json:"track"`
-		Year     int    `json:"year"`
-		Duration int    `json:"duration"`
-		Disc     int    `json:"discNumber"`
-	} `json:"song"`
+	ID       string `json:"id"`
+	ArtistID string `json:"artistId"`
+	Name     string `json:"name"`
+	Genres   []struct {
+		Name string `json:"name"`
+	} `json:"genres"`
+	Year      int `json:"year"`
+	Duration  int `json:"duration"`
+	SongCount int `json:"songCount"`
+}
+
+type jsonSong struct {
+	ID       string `json:"id"`
+	ArtistID string `json:"artistId"`
+	AlbumID  string `json:"albumId"`
+	Title    string `json:"title"`
+	FileType string `json:"suffix"`
+	Track    int    `json:"track"`
+	Year     int    `json:"year"`
+	Duration int    `json:"duration"`
+	Disc     int    `json:"discNumber"`
 }

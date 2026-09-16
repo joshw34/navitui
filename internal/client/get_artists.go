@@ -12,7 +12,7 @@ func (c *Client) GetArtists() ([]types.Artist, error) {
 
 func (c *Client) extractArtists(r *jsonResponse) []types.Artist {
 	var result []types.Artist
-	indexes := r.SubResp.Artists.Indexes
+	indexes := r.SubResp.AllArtists.Indexes
 
 	for _, index := range indexes {
 		for _, artist := range index.Artists {

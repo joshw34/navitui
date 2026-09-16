@@ -1,29 +1,66 @@
 package cache
 
 import (
+	"database/sql"
+
 	"github.com/joshw34/navitui/internal/types"
 )
 
 // TODO: Add upsert behaviour
 
-func (c *Cache) UpdateArtists(a []types.Artist) error {
-	query := `INSERT INTO artists (id, name, albumCount)
-			  VALUES (?, ?, ?)
-			  ON CONFLICT(id) DO UPDATE SET
-			  	name = excluded.name,
-				albumCount = excluded.albumCount;`
-
-	for _, artist := range a {
-		_, err := c.Data.Exec(query, artist.ID, artist.Name, artist.AlbumCount)
+func (c *Cache) UpdateArtists(a []types.Artist, resync bool) error {
+	var tx *sql.Tx
+	var stmt *sql.Stmt
+	var err error
+	tx, err = c.Data.Begin()
+	if err != nil {
+		return err
+	}
+	if resync {
+		_, err = tx.Exec("DELETE FROM artists;")
 		if err != nil {
+			_ = tx.Rollback()
 			return err
 		}
 	}
-	return nil
+	stmt, err = tx.Prepare(`
+		INSERT INTO artists (id, name, albumCount)
+		VALUES (?, ?, ?)
+		ON CONFLICT(id) DO UPDATE SET
+			name = excluded.name,
+			albumCount = excluded.albumCount;
+	`)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	defer func() { _ = stmt.Close() }()
+	for _, artist := range a {
+		_, err := stmt.Exec(artist.ID, artist.Name, artist.AlbumCount)
+		if err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+	}
+	return tx.Commit()
 }
 
-func (c *Cache) UpdateAlbums(a []types.Album) error {
-	query := `
+func (c *Cache) UpdateAlbums(a []types.Album, resync bool) error {
+	var tx *sql.Tx
+	var stmt *sql.Stmt
+	var err error
+	tx, err = c.Data.Begin()
+	if err != nil {
+		return err
+	}
+	if resync {
+		_, err = tx.Exec("DELETE FROM albums;")
+		if err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+	}
+	stmt, err = tx.Prepare(`
 		INSERT INTO albums (id, artistId, name, genres, year, duration, songCount)
 		VALUES (?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(id) DO UPDATE SET
@@ -32,23 +69,44 @@ func (c *Cache) UpdateAlbums(a []types.Album) error {
 			genres = excluded.genres,
 			year = excluded.year,
 			duration = excluded.duration,
-			songCount = excluded.songCount;`
-
+			songCount = excluded.songCount;
+	`)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	defer func() { _ = stmt.Close() }()
 	for _, album := range a {
 		genresJSON, err := stringSliceToJSON(album.Genres)
 		if err != nil {
+			_ = tx.Rollback()
 			return err
 		}
-		_, err = c.Data.Exec(query, album.ID, album.ArtistID, album.Name, genresJSON, album.Year, album.Duration, album.SongCount)
+		_, err = stmt.Exec(album.ID, album.ArtistID, album.Name, genresJSON, album.Year, album.Duration, album.SongCount)
 		if err != nil {
+			_ = tx.Rollback()
 			return err
 		}
 	}
-	return nil
+	return tx.Commit()
 }
 
-func (c *Cache) UpdateSongs(s []types.Song) error {
-	query := `
+func (c *Cache) UpdateSongs(s []types.Song, resync bool) error {
+	var tx *sql.Tx
+	var stmt *sql.Stmt
+	var err error
+	tx, err = c.Data.Begin()
+	if err != nil {
+		return err
+	}
+	if resync {
+		_, err = tx.Exec("DELETE FROM songs;")
+		if err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+	}
+	stmt, err = tx.Prepare(`
 		INSERT INTO songs (id, artistId, albumId, title, filetype, track, year, duration, disc)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(id) DO UPDATE SET
@@ -59,12 +117,36 @@ func (c *Cache) UpdateSongs(s []types.Song) error {
 			track = excluded.track,
 			year = excluded.year,
 			duration = excluded.duration,
-			disc = excluded.disc;`
+			disc = excluded.disc;
+	`)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	defer func() { _ = stmt.Close() }()
 	for _, song := range s {
-		_, err := c.Data.Exec(query, song.ID, song.ArtistID, song.AlbumID, song.Title, song.FileType, song.Track, song.Year, song.Duration, song.Disc)
+		_, err := stmt.Exec(song.ID, song.ArtistID, song.AlbumID, song.Title, song.FileType, song.Track, song.Year, song.Duration, song.Disc)
 		if err != nil {
+			_ = tx.Rollback()
 			return err
 		}
+	}
+	return tx.Commit()
+}
+
+func (c *Cache) ResyncLibrary(artists []types.Artist, albums []types.Album, songs []types.Song) error {
+	var err error
+	err = c.UpdateArtists(artists, true)
+	if err != nil {
+		return err
+	}
+	err = c.UpdateAlbums(albums, true)
+	if err != nil {
+		return err
+	}
+	err = c.UpdateSongs(songs, true)
+	if err != nil {
+		return err
 	}
 	return nil
 }
