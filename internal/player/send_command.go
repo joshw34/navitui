@@ -1,6 +1,8 @@
 package player
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type ipcCommand struct {
 	Command   []any `json:"command"`
@@ -20,4 +22,8 @@ func (p *Player) sendCommand(args ...any) error {
 
 func (p *Player) Play(url string) error {
 	return p.sendCommand("loadfile", url, "replace")
+}
+
+func (p *Player) Quit() error {
+	return p.sendCommand("quit")
 }

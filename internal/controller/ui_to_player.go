@@ -5,5 +5,5 @@ func (c *Controller) Play(songID string) error {
 	if err != nil {
 		return err
 	}
-	return c.Play(url)
+	return c.play.Play(url)
 }

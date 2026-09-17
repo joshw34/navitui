@@ -37,7 +37,7 @@ func connectIPC(sockPath string) (net.Conn, error) {
 }
 
 func (p *Player) Close() error {
-	// TODO: IPC quit call
+	_ = p.Quit()
 	_ = p.conn.Close()
 	return p.cmd.Wait()
 }

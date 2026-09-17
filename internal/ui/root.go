@@ -14,28 +14,28 @@ type page int
 
 const (
 	main page = iota
-	artistsList
-	artist
-	album
+	artists
+	albums
+	songs
 )
 
 type rootModel struct {
-	current         page
-	previous        []page
-	mainMenu        mainModel
-	artistsListPage artistsListModel
-	artistPage      artistModel
-	albumPage       albumModel
-	ctrl            *controller.Controller
+	current     page
+	previous    []page
+	mainMenu    mainModel
+	artistsList artistsModel
+	albumsList  albumsModel
+	songsList   songsModel
+	ctrl        *controller.Controller
 }
 
 func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.mainMenu.list.SetSize(msg.Width, msg.Height)
-		m.artistsListPage.list.SetSize(msg.Width, msg.Height)
-		m.artistPage.list.SetSize(msg.Width, msg.Height)
-		m.albumPage.list.SetSize(msg.Width, msg.Height)
+		m.artistsList.list.SetSize(msg.Width, msg.Height)
+		m.albumsList.list.SetSize(msg.Width, msg.Height)
+		m.songsList.list.SetSize(msg.Width, msg.Height)
 		return m, nil
 
 	case tea.KeyPressMsg:
@@ -51,40 +51,50 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.previous = m.previous[:len(m.previous)-1]
 		}
 
-	case getArtistsListMsg:
+	case getAllArtistsMsg:
 		m.previous = append(m.previous, m.current)
-		m.current = artistsList
-		return m, loadArtistsList(m.ctrl)
+		m.current = artists
+		return m, loadAllArtists(m.ctrl)
 
-	case artistsListLoadedMsg:
+	case loadedAllArtistsMsg:
 		if msg.err != nil {
 			return m, nil
 		}
-		m.artistsListPage = m.artistsListPage.buildList(msg.data)
+		m.artistsList = m.artistsList.buildList(msg.data)
 		return m, nil
 
-	case getArtistMsg:
+	case getAlbumsByArtistMsg:
 		m.previous = append(m.previous, m.current)
-		m.current = artist
-		return m, loadArtist(m.ctrl, msg.artistID)
+		m.current = albums
+		return m, loadAlbumsByArtist(m.ctrl, msg.artistID)
 
-	case artistLoadedMsg:
+	case getAllAlbumsMsg:
+		m.previous = append(m.previous, m.current)
+		m.current = albums
+		return m, loadAllAlbums(m.ctrl)
+
+	case loadedAlbumsMsg:
 		if msg.err != nil {
 			return m, nil
 		}
-		m.artistPage = m.artistPage.buildList(msg.data)
+		m.albumsList = m.albumsList.buildList(msg.data)
 		return m, nil
 
-	case getAlbumMsg:
+	case getSongsByAlbumMsg:
 		m.previous = append(m.previous, m.current)
-		m.current = album
-		return m, loadAlbum(m.ctrl, msg.albumID)
+		m.current = songs
+		return m, loadSongsByAlbum(m.ctrl, msg.albumID)
 
-	case albumLoadedMsg:
+	case getAllSongsMsg:
+		m.previous = append(m.previous, m.current)
+		m.current = songs
+		return m, loadAllSongs(m.ctrl)
+
+	case loadedSongsMsg:
 		if msg.err != nil {
 			return m, nil
 		}
-		m.albumPage = m.albumPage.buildList(msg.data)
+		m.songsList = m.songsList.buildList(msg.data)
 		return m, nil
 
 	case playSongMsg:
@@ -98,12 +108,12 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.current {
 	case main:
 		m.mainMenu, cmd = m.mainMenu.Update(msg)
-	case artistsList:
-		m.artistsListPage, cmd = m.artistsListPage.Update(msg)
-	case artist:
-		m.artistPage, cmd = m.artistPage.Update(msg)
-	case album:
-		m.albumPage, cmd = m.albumPage.Update(msg)
+	case artists:
+		m.artistsList, cmd = m.artistsList.Update(msg)
+	case albums:
+		m.albumsList, cmd = m.albumsList.Update(msg)
+	case songs:
+		m.songsList, cmd = m.songsList.Update(msg)
 	}
 	return m, cmd
 }
@@ -113,12 +123,12 @@ func (m rootModel) View() tea.View {
 	switch m.current {
 	case main:
 		s = m.mainMenu.View()
-	case artistsList:
-		s = m.artistsListPage.View()
-	case artist:
-		s = m.artistPage.View()
-	case album:
-		s = m.albumPage.View()
+	case artists:
+		s = m.artistsList.View()
+	case albums:
+		s = m.albumsList.View()
+	case songs:
+		s = m.songsList.View()
 	}
 	v := tea.NewView(s)
 	v.AltScreen = true

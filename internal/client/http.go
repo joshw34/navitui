@@ -43,7 +43,7 @@ func (c *Client) serverRequest(reqType string, extraParams url.Values) (*jsonRes
 func (c *Client) GetStreamURL(songID string) (string, error) {
 	v := url.Values{}
 	v.Set("id", songID)
-	v.Set("format", "raw")
+	//v.Set("format", "raw")
 	return c.getURL("stream", v)
 }
 

@@ -17,18 +17,18 @@ func StartUI(ctrl *controller.Controller) error {
 
 func newRootModel(ctrl *controller.Controller) rootModel {
 	return rootModel{
-		current:         main,
-		previous:        []page{},
-		mainMenu:        newMainModel(),
-		artistsListPage: newArtistsListModel(),
-		artistPage:      newArtistModel(),
-		albumPage:       newAlbumModel(),
-		ctrl:            ctrl,
+		current:     main,
+		previous:    []page{},
+		mainMenu:    newMainModel(),
+		artistsList: newArtistsListModel(),
+		albumsList:  newArtistModel(),
+		songsList:   newAlbumModel(),
+		ctrl:        ctrl,
 	}
 }
 
 func newMainModel() mainModel {
-	options := []mainItem{{option: "Artists", action: artistsList}}
+	options := []mainItem{{option: "Artists", action: artists}, {option: "Albums", action: albums}, {option: "Songs", action: songs}}
 
 	items := make([]list.Item, len(options))
 	for i, opt := range options {
@@ -41,20 +41,20 @@ func newMainModel() mainModel {
 	return mainModel{list: l}
 }
 
-func newArtistsListModel() artistsListModel {
+func newArtistsListModel() artistsModel {
 	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 	l.Title = "Artists"
-	return artistsListModel{list: l}
+	return artistsModel{list: l}
 }
 
-func newArtistModel() artistModel {
+func newArtistModel() albumsModel {
 	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 	l.Title = "Albums"
-	return artistModel{list: l}
+	return albumsModel{list: l}
 }
 
-func newAlbumModel() albumModel {
+func newAlbumModel() songsModel {
 	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 	l.Title = "Tracks"
-	return albumModel{list: l}
+	return songsModel{list: l}
 }

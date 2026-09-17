@@ -28,6 +28,9 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	defer func() {
+		_ = play.Close()
+	}()
 	ctrl := controller.New(srv, db, play)
 	if db.SyncRequired {
 		err = ctrl.ResyncLibrary()

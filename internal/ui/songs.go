@@ -10,35 +10,35 @@ import (
 	"github.com/joshw34/navitui/internal/types"
 )
 
-type albumItem struct {
+type songsItem struct {
 	songs types.Song
 }
 
-func (a albumItem) Title() string { return a.songs.Title }
+func (a songsItem) Title() string { return a.songs.Title }
 
-func (a albumItem) Description() string {
+func (a songsItem) Description() string {
 	d, _ := time.ParseDuration(strconv.Itoa(a.songs.Duration) + "s")
-	return fmt.Sprintf("%v", d)
+	return fmt.Sprintf("%v   %s", d, a.songs.ID)
 }
 
-func (a albumItem) FilterValue() string { return a.songs.Title }
+func (a songsItem) FilterValue() string { return a.songs.Title }
 
-func (a albumModel) buildList(data []types.Song) albumModel {
+func (a songsModel) buildList(data []types.Song) songsModel {
 	items := make([]list.Item, len(data))
 	for i, song := range data {
-		items[i] = albumItem{songs: song}
+		items[i] = songsItem{songs: song}
 	}
 	a.list.SetItems(items)
 	return a
 }
 
-type albumModel struct {
+type songsModel struct {
 	list list.Model
 }
 
-func (a albumModel) Update(msg tea.Msg) (albumModel, tea.Cmd) {
+func (a songsModel) Update(msg tea.Msg) (songsModel, tea.Cmd) {
 	if key, ok := msg.(tea.KeyPressMsg); ok && key.String() == "enter" {
-		if it, ok := a.list.SelectedItem().(albumItem); ok {
+		if it, ok := a.list.SelectedItem().(songsItem); ok {
 			return a, func() tea.Msg { return playSongMsg{songID: it.songs.ID} }
 		}
 	}
@@ -48,6 +48,6 @@ func (a albumModel) Update(msg tea.Msg) (albumModel, tea.Cmd) {
 	return a, cmd
 }
 
-func (a albumModel) View() string {
+func (a songsModel) View() string {
 	return a.list.View()
 }

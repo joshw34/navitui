@@ -6,51 +6,75 @@ import (
 	"github.com/joshw34/navitui/internal/types"
 )
 
-type getArtistsListMsg struct{}
-type artistsListLoadedMsg struct {
+// ARTIST MESSAGES
+type getAllArtistsMsg struct{}
+
+type loadedAllArtistsMsg struct {
 	data []types.Artist
 	err  error
 }
 
-type getArtistMsg struct {
+// ALBUM MESSAGES
+type getAlbumsByArtistMsg struct {
 	artistID string
 }
 
-type artistLoadedMsg struct {
+type getAllAlbumsMsg struct{}
+
+type loadedAlbumsMsg struct {
 	data []types.Album
 	err  error
 }
 
-type getAlbumMsg struct {
+// SONG MESSAGES
+type getSongsByAlbumMsg struct {
 	albumID string
 }
 
-type albumLoadedMsg struct {
+type getAllSongsMsg struct{}
+
+type loadedSongsMsg struct {
 	data []types.Song
 	err  error
 }
 
+// MPV MESSAGES
 type playSongMsg struct {
 	songID string
 }
 
-func loadArtistsList(ctrl *controller.Controller) tea.Cmd {
+// DATA RETRIEVAL
+func loadAllArtists(ctrl *controller.Controller) tea.Cmd {
 	return func() tea.Msg {
 		data, err := ctrl.GetArtists()
-		return artistsListLoadedMsg{data: data, err: err}
+		return loadedAllArtistsMsg{data: data, err: err}
 	}
 }
 
-func loadArtist(ctrl *controller.Controller, artistID string) tea.Cmd {
+func loadAllAlbums(ctrl *controller.Controller) tea.Cmd {
+	return func() tea.Msg {
+		data, err := ctrl.GetAllAlbums()
+		return loadedAlbumsMsg{data: data, err: err}
+	}
+}
+
+func loadAllSongs(ctrl *controller.Controller) tea.Cmd {
+	return func() tea.Msg {
+		data, err := ctrl.GetAllSongs()
+		return loadedSongsMsg{data: data, err: err}
+	}
+}
+
+func loadAlbumsByArtist(ctrl *controller.Controller, artistID string) tea.Cmd {
 	return func() tea.Msg {
 		data, err := ctrl.GetAlbumsByArtist(artistID)
-		return artistLoadedMsg{data: data, err: err}
+		return loadedAlbumsMsg{data: data, err: err}
 	}
 }
 
-func loadAlbum(ctrl *controller.Controller, albumID string) tea.Cmd {
+func loadSongsByAlbum(ctrl *controller.Controller, albumID string) tea.Cmd {
 	return func() tea.Msg {
 		data, err := ctrl.GetSongsByAlbum(albumID)
-		return albumLoadedMsg{data: data, err: err}
+		return loadedSongsMsg{data: data, err: err}
 	}
 }

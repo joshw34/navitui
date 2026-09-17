@@ -23,8 +23,12 @@ func (m mainModel) Update(msg tea.Msg) (mainModel, tea.Cmd) {
 	if key, ok := msg.(tea.KeyPressMsg); ok && key.String() == "enter" {
 		if it, ok := m.list.SelectedItem().(mainItem); ok {
 			switch it.action {
-			case artistsList:
-				return m, func() tea.Msg { return getArtistsListMsg{} }
+			case artists:
+				return m, func() tea.Msg { return getAllArtistsMsg{} }
+			case albums:
+				return m, func() tea.Msg { return getAllAlbumsMsg{} }
+			case songs:
+				return m, func() tea.Msg { return getAllSongsMsg{} }
 			}
 		}
 	}
