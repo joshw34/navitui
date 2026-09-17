@@ -20,31 +20,14 @@ func (a albumsItem) Description() string {
 
 func (a albumsItem) FilterValue() string { return a.album.Name }
 
-func (a albumsModel) buildList(data []types.Album) albumsModel {
-	items := make([]list.Item, len(data))
-	for i, album := range data {
-		items[i] = albumsItem{album: album}
+func onSelectedAlbums(it list.Item) tea.Cmd {
+	return func() tea.Msg { return getSongsByAlbumMsg{it.(albumsItem).album.ID} }
+}
+
+func albumsToListItems(albums []types.Album) []list.Item {
+	items := make([]list.Item, len(albums))
+	for i, a := range albums {
+		items[i] = albumsItem{album: a}
 	}
-	a.list.SetItems(items)
-	return a
-}
-
-type albumsModel struct {
-	list list.Model
-}
-
-func (a albumsModel) Update(msg tea.Msg) (albumsModel, tea.Cmd) {
-	if key, ok := msg.(tea.KeyPressMsg); ok && key.String() == "enter" {
-		if it, ok := a.list.SelectedItem().(albumsItem); ok {
-			return a, func() tea.Msg { return getSongsByAlbumMsg{albumID: it.album.ID} }
-		}
-	}
-
-	var cmd tea.Cmd
-	a.list, cmd = a.list.Update(msg)
-	return a, cmd
-}
-
-func (a albumsModel) View() string {
-	return a.list.View()
+	return items
 }

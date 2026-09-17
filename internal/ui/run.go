@@ -17,44 +17,26 @@ func StartUI(ctrl *controller.Controller) error {
 
 func newRootModel(ctrl *controller.Controller) rootModel {
 	return rootModel{
-		current:     main,
-		previous:    []page{},
-		mainMenu:    newMainModel(),
-		artistsList: newArtistsListModel(),
-		albumsList:  newArtistModel(),
-		songsList:   newAlbumModel(),
-		ctrl:        ctrl,
+		current:  main,
+		previous: []page{},
+		pages: map[page]pageModel{
+			main:    listPageModel{list: newMainList(), onSelected: onSelectedMain},
+			artists: listPageModel{list: newEmptyList("Artists"), onSelected: onSelectedArtists},
+			albums:  listPageModel{list: newEmptyList("Albums"), onSelected: onSelectedAlbums},
+			songs:   listPageModel{list: newEmptyList("Songs"), onSelected: onSelectedSongs},
+		},
+		ctrl: ctrl,
 	}
 }
 
-func newMainModel() mainModel {
-	options := []mainItem{{option: "Artists", action: artists}, {option: "Albums", action: albums}, {option: "Songs", action: songs}}
-
-	items := make([]list.Item, len(options))
-	for i, opt := range options {
-		items[i] = opt
-	}
-
-	l := list.New(items, list.NewDefaultDelegate(), 0, 0) // pass items straight in
-	l.Title = "Main Menu"
-
-	return mainModel{list: l}
+func newEmptyList(title string) list.Model {
+	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	l.Title = title
+	return l
 }
 
-func newArtistsListModel() artistsModel {
-	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
-	l.Title = "Artists"
-	return artistsModel{list: l}
-}
-
-func newArtistModel() albumsModel {
-	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
-	l.Title = "Albums"
-	return albumsModel{list: l}
-}
-
-func newAlbumModel() songsModel {
-	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
-	l.Title = "Tracks"
-	return songsModel{list: l}
+func newMainList() list.Model {
+	l := newEmptyList("Main Menu")
+	l.SetItems(mainOptionsToListItem())
+	return l
 }
