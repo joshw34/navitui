@@ -31,7 +31,7 @@ func (n nowPlayingModel) Update(msg tea.Msg) (pageModel, tea.Cmd) {
 func (n nowPlayingModel) View() string {
 	//t, _ := time.ParseDuration(strconv.Itoa(n.timePos) + "s")
 	//return fmt.Sprintf("Title: %s\tArtist: %s\tAlbum: %s\nTime: %v", n.song.Title, n.song.Artist, n.song.Album, t)
-	return fmt.Sprintf("Track: %s\nAlbum: %s\nArtist: %s\n%s\n", n.song.Title, n.song.Album, n.song.Artist, n.prog.ViewAs(n.percentage))
+	return fmt.Sprintf("Track: %s\nAlbum: %s\nArtist: %s\n%s", n.song.Title, n.song.Album, n.song.Artist, n.prog.ViewAs(n.percentage))
 }
 
 func (n nowPlayingModel) updateSong(s types.Song) nowPlayingModel {

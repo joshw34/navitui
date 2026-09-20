@@ -102,12 +102,14 @@ func (m rootModel) Init() tea.Cmd {
 // UPDATE() HELPERS
 func (m rootModel) setWindowSize(msg tea.Msg) (bool, rootModel, tea.Cmd) {
 	// list.SetSize() needs usable area (minus border width)
+	// bottomMargin prevents the bottom border being clipped
 	if msg, ok := msg.(tea.WindowSizeMsg); ok {
 		const border = 2
+		const bottomMargin = 1
 		m.listPaneW = msg.Width / 2
-		m.listPaneH = msg.Height * 85 / 100
+		m.listPaneH = (msg.Height - bottomMargin) * 85 / 100
 		m.npPaneW = msg.Width
-		m.npPaneH = msg.Height * 15 / 100
+		m.npPaneH = msg.Height - m.listPaneH
 		for key, p := range m.pages {
 			if lp, ok := p.(listPageModel); ok {
 				lp.list.SetSize(m.listPaneW-border, m.listPaneH-border)
