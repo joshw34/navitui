@@ -4,6 +4,7 @@ import (
 	"charm.land/bubbles/v2/list"
 	tea "charm.land/bubbletea/v2"
 	"github.com/joshw34/navitui/internal/controller"
+	"github.com/joshw34/navitui/internal/types"
 )
 
 func StartUI(ctrl *controller.Controller) error {
@@ -28,8 +29,9 @@ func newRootModel(ctrl *controller.Controller) rootModel {
 			albums:  listPageModel{list: newEmptyList("Albums"), onKeypress: onKeypressAlbums},
 			songs:   listPageModel{list: newEmptyList("Songs"), onKeypress: onKeypressSongs},
 		},
-		queue: listPageModel{list: newEmptyList("Queue"), onKeypress: onKeypressQueue},
-		ctrl:  ctrl,
+		queue:      listPageModel{list: newEmptyList("Queue"), onKeypress: onKeypressQueue},
+		nowPlaying: nowPlayingModel{song: types.Song{}},
+		ctrl:       ctrl,
 	}
 }
 

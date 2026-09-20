@@ -32,6 +32,7 @@ type rootModel struct {
 	previous                              []page
 	pages                                 map[page]pageModel
 	queue                                 pageModel
+	nowPlaying                            pageModel
 	height, width, listH, listW, npH, npW int
 	ctrl                                  *controller.Controller
 }
@@ -80,10 +81,10 @@ func (m rootModel) View() tea.View {
 
 	left := leftStyle.Render(m.pages[m.current].View())
 	right := rightStyle.Render(m.queue.View())
-	bottom := bottomStyle.Render("\nNow Playing...")
+	bottom := bottomStyle.Render(m.nowPlaying.View())
 
 	top := lipgloss.JoinHorizontal(lipgloss.Top, left, right)
-	full := lipgloss.JoinVertical(lipgloss.Left, top, bottom)
+	full := lipgloss.JoinVertical(lipgloss.Top, top, bottom)
 	v := tea.NewView(full)
 	v.AltScreen = true
 	return v
@@ -242,7 +243,8 @@ func (m rootModel) checkUpdateMessage(msg tea.Msg) (bool, rootModel, tea.Cmd) {
 	u := msg.(updateMsg).u
 	switch u.Type {
 	case controller.NowPlaying:
-		// TODO: update this when now playing page is created
+		np := m.nowPlaying.(nowPlayingModel).updateData(u.NowPlaying)
+		m.nowPlaying = np
 		return true, m, nil
 	case controller.QueueUpdate:
 		var titles []string
@@ -251,7 +253,7 @@ func (m rootModel) checkUpdateMessage(msg tea.Msg) (bool, rootModel, tea.Cmd) {
 		}
 		log.Printf("QUEUE: %s", strings.Join(titles, ", "))
 		lp := m.queue.(listPageModel)
-		m.queue = lp.updateList(songsToListItems(u.Queue))
+		m.queue = lp.updateList(queueToListItems(u.Queue))
 		return true, m, nil
 	}
 	return false, m, nil
