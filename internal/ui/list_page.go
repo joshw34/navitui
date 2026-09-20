@@ -7,7 +7,7 @@ import (
 
 type listPageModel struct {
 	list       list.Model
-	onKeypress func(tea.KeyPressMsg, list.Item) tea.Cmd
+	onKeypress func(tea.KeyPressMsg, list.Item, int) tea.Cmd
 }
 
 func (l listPageModel) updateList(items []list.Item) listPageModel {
@@ -19,9 +19,9 @@ func (l listPageModel) Update(msg tea.Msg) (pageModel, tea.Cmd) {
 	// Check for page-specific keypress
 	if key, ok := msg.(tea.KeyPressMsg); ok && l.list.FilterState() != list.Filtering {
 		if it := l.list.SelectedItem(); it != nil {
-			found := l.onKeypress(key, it)
-			if found != nil {
-				return l, l.onKeypress(key, it)
+			listCmd := l.onKeypress(key, it, l.list.Index())
+			if listCmd != nil {
+				return l, listCmd
 			}
 		}
 	}

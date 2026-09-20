@@ -19,7 +19,8 @@ type mainModel struct {
 	list list.Model
 }
 
-func onKeypressMain(key tea.KeyPressMsg, it list.Item) tea.Cmd {
+func onKeypressMain(key tea.KeyPressMsg, it list.Item, index int) tea.Cmd {
+	_ = index
 	if key.String() == "enter" {
 		switch it.(mainItem).option {
 		case "Artists":

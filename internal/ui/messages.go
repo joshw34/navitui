@@ -46,6 +46,10 @@ type addToQueueMsg struct {
 	s types.Song
 }
 
+type removeFromQueueMsg struct {
+	index int
+}
+
 // UI UPDATE MESSAGES
 type updateMsg struct {
 	u controller.Update

@@ -20,7 +20,8 @@ func (a albumsItem) Description() string {
 
 func (a albumsItem) FilterValue() string { return a.album.Name }
 
-func onKeypressAlbums(key tea.KeyPressMsg, it list.Item) tea.Cmd {
+func onKeypressAlbums(key tea.KeyPressMsg, it list.Item, index int) tea.Cmd {
+	_ = index
 	a := it.(albumsItem)
 	switch key.String() {
 	case "enter":

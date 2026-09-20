@@ -20,7 +20,8 @@ func (a artistsItem) Description() string {
 
 func (a artistsItem) FilterValue() string { return a.artist.Name }
 
-func onKeypressArtists(key tea.KeyPressMsg, it list.Item) tea.Cmd {
+func onKeypressArtists(key tea.KeyPressMsg, it list.Item, index int) tea.Cmd {
+	_ = index
 	a := it.(artistsItem)
 	switch key.String() {
 	case "enter":

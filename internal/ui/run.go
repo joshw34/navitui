@@ -31,6 +31,7 @@ func newRootModel(ctrl *controller.Controller) rootModel {
 		},
 		queue:      listPageModel{list: newEmptyList("Queue"), onKeypress: onKeypressQueue},
 		nowPlaying: nowPlayingModel{song: types.Song{}},
+		activePane: left,
 		ctrl:       ctrl,
 	}
 }

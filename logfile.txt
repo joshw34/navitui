@@ -83,3 +83,30 @@
 2026/09/20 14:49:12 SEND:  {"command":["quit"]}
 2026/09/20 14:50:15 SEND:  {"command":["quit"]}
 2026/09/20 14:53:31 SEND:  {"command":["quit"]}
+2026/09/20 15:06:56 QUEUE: Dreadlock Holiday
+2026/09/20 15:07:01 SEND:  {"command":["quit"]}
+2026/09/20 15:24:44 SEND:  {"command":["quit"]}
+2026/09/20 15:24:44 READ:  {"data":null,"request_id":0,"error":"success"}
+2026/09/20 15:26:32 QUEUE: Dreadlock Holiday
+2026/09/20 15:26:33 QUEUE: Dreadlock Holiday, Good Morning Judge
+2026/09/20 15:26:33 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love
+2026/09/20 15:26:34 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love, Art for Art's Sake
+2026/09/20 15:26:34 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love, Art for Art's Sake, Life Is a Minestrone
+2026/09/20 15:26:39 nowPlaying: 
+2026/09/20 15:26:39 SEND:  {"command":["stop"]}
+2026/09/20 15:26:39 READ:  {"data":null,"request_id":0,"error":"success"}
+2026/09/20 15:26:48 nowPlaying: 
+2026/09/20 15:26:48 SEND:  {"command":["stop"]}
+2026/09/20 15:26:48 READ:  {"data":null,"request_id":0,"error":"success"}
+2026/09/20 15:27:14 SEND:  {"command":["quit"]}
+2026/09/20 15:27:18 QUEUE: Dreadlock Holiday
+2026/09/20 15:27:19 QUEUE: Dreadlock Holiday, Good Morning Judge
+2026/09/20 15:27:19 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love
+2026/09/20 15:27:19 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love, Art for Art's Sake
+2026/09/20 15:27:21 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love, Art for Art's Sake, Life Is a Minestrone
+2026/09/20 15:27:25 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love, Life Is a Minestrone
+2026/09/20 15:27:30 QUEUE: Good Morning Judge, I'm Not in Love, Life Is a Minestrone
+2026/09/20 15:27:33 QUEUE: I'm Not in Love, Life Is a Minestrone
+2026/09/20 15:27:33 QUEUE: Life Is a Minestrone
+2026/09/20 15:27:34 QUEUE: 
+2026/09/20 15:28:21 SEND:  {"command":["quit"]}

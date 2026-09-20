@@ -21,6 +21,13 @@ const (
 	songs
 )
 
+type inputReceiver int
+
+const (
+	left inputReceiver = iota
+	right
+)
+
 type pageModel interface {
 	Update(msg tea.Msg) (pageModel, tea.Cmd)
 	View() string
@@ -33,6 +40,7 @@ type rootModel struct {
 	pages                                 map[page]pageModel
 	queue                                 pageModel
 	nowPlaying                            pageModel
+	activePane                            inputReceiver
 	height, width, listH, listW, npH, npW int
 	ctrl                                  *controller.Controller
 }
@@ -121,6 +129,12 @@ func (m rootModel) globalKeyPresses(key tea.Msg) (bool, rootModel, tea.Cmd) {
 			return true, m, tea.Quit
 		case "esc":
 			return true, m.goToPreviousPage(), nil
+		case "1":
+			m.activePane = left
+			return true, m, nil
+		case "2":
+			m.activePane = right
+			return true, m, nil
 		case "p":
 			return true, m, func() tea.Msg {
 				if err := m.ctrl.TogglePause(); err != nil {
@@ -231,6 +245,11 @@ func (m rootModel) checkPlayerMessages(msg tea.Msg) (bool, rootModel, tea.Cmd) {
 			m.ctrl.QueueAddToEnd(msg.s)
 			return nil
 		}
+	case removeFromQueueMsg:
+		return true, m, func() tea.Msg {
+			m.ctrl.QueueRemove(msg.index)
+			return nil
+		}
 	}
 	return false, m, nil
 }
@@ -261,6 +280,10 @@ func (m rootModel) checkUpdateMessage(msg tea.Msg) (bool, rootModel, tea.Cmd) {
 
 func (m rootModel) delegateToSubpages(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.pages[m.current], cmd = m.pages[m.current].Update(msg)
+	if m.activePane == left {
+		m.pages[m.current], cmd = m.pages[m.current].Update(msg)
+	} else {
+		m.queue, cmd = m.queue.Update(msg)
+	}
 	return m, cmd
 }
