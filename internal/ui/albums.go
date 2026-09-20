@@ -15,7 +15,7 @@ type albumsItem struct {
 func (a albumsItem) Title() string { return a.album.Name }
 
 func (a albumsItem) Description() string {
-	return fmt.Sprintf("%s", yearLabel(a.album.Year))
+	return fmt.Sprintf("%s - %s", yearLabel(a.album.Year), a.album.Artist)
 }
 
 func (a albumsItem) FilterValue() string { return a.album.Name }

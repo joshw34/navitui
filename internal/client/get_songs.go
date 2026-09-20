@@ -52,6 +52,8 @@ func (c *Client) extractSongs(data []jsonSong) ([]types.Song, error) {
 		s.ID = r.ID
 		s.ArtistID = r.ArtistID
 		s.AlbumID = r.AlbumID
+		s.Artist = r.Artist
+		s.Album = r.Album
 		s.Title = r.Title
 		s.FileType = r.FileType
 		s.Track = r.Track

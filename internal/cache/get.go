@@ -33,7 +33,7 @@ func (c *Cache) GetArtists() ([]types.Artist, error) {
 
 func (c *Cache) GetAlbumsByArtist(searchID string) ([]types.Album, error) {
 	query := `
-		SELECT id, artistId, name, genres, year, duration, songCount
+		SELECT id, artistId, name, artist, genres, year, duration, songCount
 		FROM albums
 		WHERE artistId = ?
 		ORDER BY
@@ -54,7 +54,7 @@ func (c *Cache) GetAlbumsByArtist(searchID string) ([]types.Album, error) {
 	for rows.Next() {
 		var a types.Album
 		var genresJSON []byte
-		if err := rows.Scan(&a.ID, &a.ArtistID, &a.Name, &genresJSON, &a.Year, &a.Duration, &a.SongCount); err != nil {
+		if err := rows.Scan(&a.ID, &a.ArtistID, &a.Name, &a.Artist, &genresJSON, &a.Year, &a.Duration, &a.SongCount); err != nil {
 			return nil, err
 		}
 		genresSlice, err := jsonToStringSlice(genresJSON)
@@ -74,7 +74,7 @@ func (c *Cache) GetAlbumsByArtist(searchID string) ([]types.Album, error) {
 
 func (c *Cache) GetAllAlbums() ([]types.Album, error) {
 	query := `
-		SELECT id, artistId, name, genres, year, duration, songCount
+		SELECT id, artistId, name, artist, genres, year, duration, songCount
 		FROM albums
 		ORDER BY name;`
 
@@ -91,7 +91,7 @@ func (c *Cache) GetAllAlbums() ([]types.Album, error) {
 	for rows.Next() {
 		var a types.Album
 		var genresJSON []byte
-		if err := rows.Scan(&a.ID, &a.ArtistID, &a.Name, &genresJSON, &a.Year, &a.Duration, &a.SongCount); err != nil {
+		if err := rows.Scan(&a.ID, &a.ArtistID, &a.Name, &a.Artist, &genresJSON, &a.Year, &a.Duration, &a.SongCount); err != nil {
 			return nil, err
 		}
 		genresSlice, err := jsonToStringSlice(genresJSON)
@@ -111,7 +111,7 @@ func (c *Cache) GetAllAlbums() ([]types.Album, error) {
 
 func (c *Cache) GetSongsByAlbum(searchID string) ([]types.Song, error) {
 	query := `
-		SELECT id, artistId, albumId, title, filetype, track, year, duration, disc
+		SELECT id, artistId, albumId, artist, album, title, filetype, track, year, duration, disc
 		FROM songs
 		WHERE albumId = ?
 		ORDER BY
@@ -132,7 +132,7 @@ func (c *Cache) GetSongsByAlbum(searchID string) ([]types.Song, error) {
 
 	for rows.Next() {
 		var s types.Song
-		err = rows.Scan(&s.ID, &s.ArtistID, &s.AlbumID, &s.Title, &s.FileType, &s.Track, &s.Year, &s.Duration, &s.Disc)
+		err = rows.Scan(&s.ID, &s.ArtistID, &s.AlbumID, &s.Artist, &s.Album, &s.Title, &s.FileType, &s.Track, &s.Year, &s.Duration, &s.Disc)
 		if err != nil {
 			return nil, err
 		}
@@ -144,7 +144,7 @@ func (c *Cache) GetSongsByAlbum(searchID string) ([]types.Song, error) {
 
 func (c *Cache) GetAllSongs() ([]types.Song, error) {
 	query := `
-		SELECT id, artistId, albumId, title, filetype, track, year, duration, disc
+		SELECT id, artistId, albumId, artist, album, title, filetype, track, year, duration, disc
 		FROM songs
 		ORDER BY title;`
 
@@ -161,7 +161,7 @@ func (c *Cache) GetAllSongs() ([]types.Song, error) {
 
 	for rows.Next() {
 		var s types.Song
-		err = rows.Scan(&s.ID, &s.ArtistID, &s.AlbumID, &s.Title, &s.FileType, &s.Track, &s.Year, &s.Duration, &s.Disc)
+		err = rows.Scan(&s.ID, &s.ArtistID, &s.AlbumID, &s.Artist, &s.Album, &s.Title, &s.FileType, &s.Track, &s.Year, &s.Duration, &s.Disc)
 		if err != nil {
 			return nil, err
 		}

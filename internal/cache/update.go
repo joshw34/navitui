@@ -61,11 +61,12 @@ func (c *Cache) UpdateAlbums(a []types.Album, resync bool) error {
 		}
 	}
 	stmt, err = tx.Prepare(`
-		INSERT INTO albums (id, artistId, name, genres, year, duration, songCount)
-		VALUES (?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO albums (id, artistId, name, artist, genres, year, duration, songCount)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(id) DO UPDATE SET
 			artistId = excluded.artistId,
 			name = excluded.name,
+			artist = excluded.artist,
 			genres = excluded.genres,
 			year = excluded.year,
 			duration = excluded.duration,
@@ -82,7 +83,7 @@ func (c *Cache) UpdateAlbums(a []types.Album, resync bool) error {
 			_ = tx.Rollback()
 			return err
 		}
-		_, err = stmt.Exec(album.ID, album.ArtistID, album.Name, genresJSON, album.Year, album.Duration, album.SongCount)
+		_, err = stmt.Exec(album.ID, album.ArtistID, album.Name, album.Artist, genresJSON, album.Year, album.Duration, album.SongCount)
 		if err != nil {
 			_ = tx.Rollback()
 			return err
@@ -107,11 +108,13 @@ func (c *Cache) UpdateSongs(s []types.Song, resync bool) error {
 		}
 	}
 	stmt, err = tx.Prepare(`
-		INSERT INTO songs (id, artistId, albumId, title, filetype, track, year, duration, disc)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO songs (id, artistId, albumId, artist, album, title, filetype, track, year, duration, disc)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(id) DO UPDATE SET
 			artistId = excluded.artistId,
 			albumId = excluded.albumId,
+			artist = excluded.artist,
+			album = excluded.album,
 			title = excluded.title,
 			filetype = excluded.filetype,
 			track = excluded.track,
@@ -125,7 +128,7 @@ func (c *Cache) UpdateSongs(s []types.Song, resync bool) error {
 	}
 	defer func() { _ = stmt.Close() }()
 	for _, song := range s {
-		_, err := stmt.Exec(song.ID, song.ArtistID, song.AlbumID, song.Title, song.FileType, song.Track, song.Year, song.Duration, song.Disc)
+		_, err := stmt.Exec(song.ID, song.ArtistID, song.AlbumID, song.Artist, song.Album, song.Title, song.FileType, song.Track, song.Year, song.Duration, song.Disc)
 		if err != nil {
 			_ = tx.Rollback()
 			return err

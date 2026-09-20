@@ -67,3 +67,19 @@
 2026/09/20 14:20:45 QUEUE: Dreadlock Holiday
 2026/09/20 14:20:47 QUEUE: Dreadlock Holiday, I'm Not in Love
 2026/09/20 14:20:51 SEND:  {"command":["quit"]}
+2026/09/20 14:30:10 SEND:  {"command":["quit"]}
+2026/09/20 14:32:52 SEND:  {"command":["quit"]}
+2026/09/20 14:32:56 QUEUE: Dreadlock Holiday
+2026/09/20 14:33:02 QUEUE: Dreadlock Holiday, Highway to Hell
+2026/09/20 14:33:06 SEND:  {"command":["cycle","pause"]}
+2026/09/20 14:33:06 READ:  {"data":null,"request_id":0,"error":"success"}
+2026/09/20 14:33:08 SEND:  {"command":["cycle","pause"]}
+2026/09/20 14:33:08 READ:  {"data":null,"request_id":0,"error":"success"}
+2026/09/20 14:33:14 SEND:  {"command":["quit"]}
+2026/09/20 14:47:27 SEND:  {"command":["quit"]}
+2026/09/20 14:48:01 QUEUE: Excursions
+2026/09/20 14:48:12 SEND:  {"command":["quit"]}
+2026/09/20 14:48:59 SEND:  {"command":["quit"]}
+2026/09/20 14:49:12 SEND:  {"command":["quit"]}
+2026/09/20 14:50:15 SEND:  {"command":["quit"]}
+2026/09/20 14:53:31 SEND:  {"command":["quit"]}

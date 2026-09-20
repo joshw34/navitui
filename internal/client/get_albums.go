@@ -50,6 +50,7 @@ func (c *Client) extractAlbums(data []jsonAlbum) ([]types.Album, error) {
 		a.ID = r.ID
 		a.ArtistID = r.ArtistID
 		a.Name = r.Name
+		a.Artist = r.Artist
 		for _, g := range r.Genres {
 			a.Genres = append(a.Genres, g.Name)
 		}

@@ -49,6 +49,7 @@ type jsonAlbum struct {
 	ID       string `json:"id"`
 	ArtistID string `json:"artistId"`
 	Name     string `json:"name"`
+	Artist   string `json:"artist"`
 	Genres   []struct {
 		Name string `json:"name"`
 	} `json:"genres"`
@@ -62,6 +63,8 @@ type jsonSong struct {
 	ArtistID string `json:"artistId"`
 	AlbumID  string `json:"albumId"`
 	Title    string `json:"title"`
+	Artist   string `json:"artist"`
+	Album    string `json:"album"`
 	FileType string `json:"suffix"`
 	Track    int    `json:"track"`
 	Year     int    `json:"year"`

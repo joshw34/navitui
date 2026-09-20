@@ -11,6 +11,7 @@ type Album struct {
 	ID        string
 	ArtistID  string
 	Name      string
+	Artist    string
 	Genres    []string
 	Year      int
 	Duration  int
@@ -21,6 +22,8 @@ type Song struct {
 	ID       string
 	ArtistID string
 	AlbumID  string
+	Artist   string
+	Album    string
 	Title    string
 	FileType string
 	Track    int

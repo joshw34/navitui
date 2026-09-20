@@ -15,7 +15,7 @@ type queueItem struct {
 func (q queueItem) Title() string { return q.songs.Title }
 
 func (q queueItem) Description() string {
-	return fmt.Sprintf("%s", q.songs.ArtistID)
+	return fmt.Sprintf("%s", q.songs.Artist)
 }
 
 func (q queueItem) FilterValue() string { return q.songs.Title }
