@@ -34,14 +34,14 @@ type pageModel interface {
 
 // MAIN BUBBLETEA INTERFACE
 type rootModel struct {
-	current                               page
-	previous                              []page
-	pages                                 map[page]pageModel
-	queue                                 pageModel
-	nowPlaying                            pageModel
-	activePane                            inputReceiver
-	height, width, listH, listW, npH, npW int
-	ctrl                                  *controller.Controller
+	current                                page
+	previous                               []page
+	pages                                  map[page]pageModel
+	queue                                  pageModel
+	nowPlaying                             pageModel
+	activePane                             inputReceiver
+	listPaneH, listPaneW, npPaneH, npPaneW int
+	ctrl                                   *controller.Controller
 }
 
 func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -79,12 +79,10 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m rootModel) View() tea.View {
-	leftStyle := lipgloss.NewStyle().Width(m.listW).Height(m.listH).
-		Border(lipgloss.RoundedBorder(), true, true, true, true)
-	rightStyle := lipgloss.NewStyle().Width(m.listW).Height(m.listH).
-		Border(lipgloss.RoundedBorder(), true, true, true, true)
-	bottomStyle := lipgloss.NewStyle().Width(m.npW).Height(m.npH).
-		Border(lipgloss.RoundedBorder(), true, true, true, true)
+	// lipgloss uses the entire pane width (including border)
+	leftStyle := lipgloss.NewStyle().Width(m.listPaneW).Height(m.listPaneH).Border(lipgloss.RoundedBorder())
+	rightStyle := lipgloss.NewStyle().Width(m.listPaneW).Height(m.listPaneH).Border(lipgloss.RoundedBorder())
+	bottomStyle := lipgloss.NewStyle().Width(m.npPaneW).Height(m.npPaneH).Border(lipgloss.RoundedBorder())
 
 	left := leftStyle.Render(m.pages[m.current].View())
 	right := rightStyle.Render(m.queue.View())
@@ -98,24 +96,30 @@ func (m rootModel) View() tea.View {
 }
 
 func (m rootModel) Init() tea.Cmd {
-	// TODO: Confirm this is needed
-	m.pages[main].(listPageModel).Update(mainOptionsToListItem())
 	return nil
 }
 
 // UPDATE() HELPERS
 func (m rootModel) setWindowSize(msg tea.Msg) (bool, rootModel, tea.Cmd) {
+	// list.SetSize() needs usable area (minus border width)
 	if msg, ok := msg.(tea.WindowSizeMsg); ok {
-		m.height, m.width, m.listH, m.listW, m.npH, m.npW = msg.Height, msg.Width, msg.Height*85/100, msg.Width/2, msg.Height*15/100, msg.Width
+		const border = 2
+		m.listPaneW = msg.Width / 2
+		m.listPaneH = msg.Height * 85 / 100
+		m.npPaneW = msg.Width
+		m.npPaneH = msg.Height * 15 / 100
 		for key, p := range m.pages {
 			if lp, ok := p.(listPageModel); ok {
-				lp.list.SetSize(m.listW, m.listH)
+				lp.list.SetSize(m.listPaneW-border, m.listPaneH-border)
 				m.pages[key] = lp
 			}
 		}
 		q := m.queue.(listPageModel)
-		q.list.SetSize(m.listW, m.listH)
+		q.list.SetSize(m.listPaneW-border, m.listPaneH-border)
 		m.queue = q
+		np := m.nowPlaying.(nowPlayingModel)
+		np.prog.SetWidth(m.npPaneW)
+		m.nowPlaying = np
 		return true, m, nil
 	}
 	return false, m, nil

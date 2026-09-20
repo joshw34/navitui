@@ -2,6 +2,7 @@ package ui
 
 import (
 	"charm.land/bubbles/v2/list"
+	"charm.land/bubbles/v2/progress"
 	tea "charm.land/bubbletea/v2"
 	"github.com/joshw34/navitui/internal/controller"
 	"github.com/joshw34/navitui/internal/types"
@@ -30,7 +31,7 @@ func newRootModel(ctrl *controller.Controller) rootModel {
 			songs:   listPageModel{list: newEmptyList("Songs"), onKeypress: onKeypressSongs},
 		},
 		queue:      listPageModel{list: newEmptyList("Queue"), onKeypress: onKeypressQueue},
-		nowPlaying: nowPlayingModel{song: types.Song{}},
+		nowPlaying: nowPlayingModel{song: types.Song{}, prog: progress.New(progress.WithScaled(true), progress.WithColors(pink, yellow))},
 		activePane: left,
 		ctrl:       ctrl,
 	}

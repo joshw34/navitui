@@ -23,8 +23,10 @@ type Update struct {
 func (c *Controller) PlayerEventHandler(e player.Event) {
 	switch e.Type {
 	case player.Finished:
+		c.uiTimePos(0)
 		c.QueueAdvance()
 	case player.Stopped:
+		c.uiTimePos(0)
 		return
 	case player.TimePos:
 		c.uiTimePos(e.Time)
