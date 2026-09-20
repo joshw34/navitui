@@ -23,6 +23,7 @@ func (p *Player) sendCommand(args ...any) error {
 }
 
 func (p *Player) PlaySong(url string) error {
+	_ = p.observeTimePos()
 	return p.sendCommand("loadfile", url, "replace")
 }
 
@@ -36,4 +37,8 @@ func (p *Player) TogglePause() error {
 
 func (p *Player) Quit() error {
 	return p.sendCommand("quit")
+}
+
+func (p *Player) observeTimePos() error {
+	return p.sendCommand("observe_property", 99, "time-pos")
 }

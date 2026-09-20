@@ -1,112 +1,26 @@
 
-2026/09/20 14:05:03 SEND:  {"command":["quit"]}
-2026/09/20 14:05:03 READ:  {"data":null,"request_id":0,"error":"success"}
-2026/09/20 14:09:19 SEND:  {"command":["loadfile","http://192.168.1.13:4533/navidrome/rest/stream?c=navitui\u0026f=json\u0026id=MVqd24lkmPQ7aJRz3XOjls\u0026p=x%23B%25%40%25TgEh%406sb%24354cl%26%40PA0\u0026u=joshw\u0026v=1.16.1","replace"]}
-2026/09/20 14:09:19 nowPlaying: Dreadlock Holiday
-2026/09/20 14:09:19 READ:  {"data":{"playlist_entry_id":1},"request_id":0,"error":"success"}
-2026/09/20 14:09:19 READ:  {"event":"start-file","playlist_entry_id":1}
-2026/09/20 14:09:19 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:09:19 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:09:19 READ:  {"event":"file-loaded"}
-2026/09/20 14:09:19 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:09:19 READ:  {"event":"playback-restart"}
-2026/09/20 14:10:17 SEND:  {"command":["loadfile","http://192.168.1.13:4533/navidrome/rest/stream?c=navitui\u0026f=json\u0026id=YvMWEgVhwvLDzBIyafiKNy\u0026p=x%23B%25%40%25TgEh%406sb%24354cl%26%40PA0\u0026u=joshw\u0026v=1.16.1","replace"]}
-2026/09/20 14:10:17 nowPlaying: Pretty Little Ditty
-2026/09/20 14:10:17 READ:  {"data":{"playlist_entry_id":2},"request_id":0,"error":"success"}
-2026/09/20 14:10:17 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:10:17 READ:  {"event":"end-file","reason":"stop","playlist_entry_id":1}
-2026/09/20 14:10:17 READ:  {"event":"start-file","playlist_entry_id":2}
-2026/09/20 14:10:17 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:10:17 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:10:17 READ:  {"event":"file-loaded"}
-2026/09/20 14:10:17 READ:  {"event":"playback-restart"}
-2026/09/20 14:11:00 QUEUE: Blood Sugar Sex Magik
-2026/09/20 14:11:53 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:11:53 READ:  {"event":"end-file","reason":"eof","playlist_entry_id":2}
-2026/09/20 14:11:53 SEND:  {"command":["loadfile","http://192.168.1.13:4533/navidrome/rest/stream?c=navitui\u0026f=json\u0026id=o7G4lDVWsVOBF8gp1MasrJ\u0026p=x%23B%25%40%25TgEh%406sb%24354cl%26%40PA0\u0026u=joshw\u0026v=1.16.1","replace"]}
-2026/09/20 14:11:53 nowPlaying: Blood Sugar Sex Magik
-2026/09/20 14:11:53 QUEUE: 
-2026/09/20 14:11:53 READ:  {"data":{"playlist_entry_id":3},"request_id":0,"error":"success"}
-2026/09/20 14:11:53 READ:  {"event":"start-file","playlist_entry_id":3}
-2026/09/20 14:11:53 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:11:53 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:11:53 READ:  {"event":"file-loaded"}
-2026/09/20 14:11:53 READ:  {"event":"playback-restart"}
-2026/09/20 14:11:59 nowPlaying: 
-2026/09/20 14:11:59 SEND:  {"command":["stop"]}
-2026/09/20 14:11:59 READ:  {"data":null,"request_id":0,"error":"success"}
-2026/09/20 14:11:59 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:11:59 READ:  {"event":"end-file","reason":"stop","playlist_entry_id":3}
-2026/09/20 14:11:59 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:11:59 READ:  {"event":"idle"}
-2026/09/20 14:12:35 SEND:  {"command":["loadfile","http://192.168.1.13:4533/navidrome/rest/stream?c=navitui\u0026f=json\u0026id=UPQ9aBi0TJ7c35Pk35bdKp\u0026p=x%23B%25%40%25TgEh%406sb%24354cl%26%40PA0\u0026u=joshw\u0026v=1.16.1","replace"]}
-2026/09/20 14:12:35 nowPlaying: Sir Psycho Sexy
-2026/09/20 14:12:35 READ:  {"data":{"playlist_entry_id":4},"request_id":0,"error":"success"}
-2026/09/20 14:12:35 READ:  {"event":"start-file","playlist_entry_id":4}
-2026/09/20 14:12:35 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:12:35 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:12:35 READ:  {"event":"file-loaded"}
-2026/09/20 14:12:35 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:12:35 READ:  {"event":"playback-restart"}
-2026/09/20 14:14:14 SEND:  {"command":["quit"]}
-2026/09/20 14:14:32 SEND:  {"command":["loadfile","http://192.168.1.13:4533/navidrome/rest/stream?c=navitui\u0026f=json\u0026id=TZB5344AgPswx4XfkepaJo\u0026p=x%23B%25%40%25TgEh%406sb%24354cl%26%40PA0\u0026u=joshw\u0026v=1.16.1","replace"]}
-2026/09/20 14:14:32 nowPlaying: Award Tour
-2026/09/20 14:14:32 READ:  {"data":{"playlist_entry_id":1},"request_id":0,"error":"success"}
-2026/09/20 14:14:32 READ:  {"event":"start-file","playlist_entry_id":1}
-2026/09/20 14:14:32 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:14:32 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:14:32 READ:  {"event":"file-loaded"}
-2026/09/20 14:14:32 READ:  {"event":"audio-reconfig"}
-2026/09/20 14:14:32 READ:  {"event":"playback-restart"}
-2026/09/20 14:18:08 SEND:  {"command":["quit"]}
-2026/09/20 14:18:12 QUEUE: Dreadlock Holiday
-2026/09/20 14:18:14 QUEUE: Dreadlock Holiday, Good Morning Judge
-2026/09/20 14:18:28 SEND:  {"command":["quit"]}
-2026/09/20 14:18:31 QUEUE: Dreadlock Holiday
-2026/09/20 14:18:32 SEND:  {"command":["quit"]}
-2026/09/20 14:20:45 QUEUE: Dreadlock Holiday
-2026/09/20 14:20:47 QUEUE: Dreadlock Holiday, I'm Not in Love
-2026/09/20 14:20:51 SEND:  {"command":["quit"]}
-2026/09/20 14:30:10 SEND:  {"command":["quit"]}
-2026/09/20 14:32:52 SEND:  {"command":["quit"]}
-2026/09/20 14:32:56 QUEUE: Dreadlock Holiday
-2026/09/20 14:33:02 QUEUE: Dreadlock Holiday, Highway to Hell
-2026/09/20 14:33:06 SEND:  {"command":["cycle","pause"]}
-2026/09/20 14:33:06 READ:  {"data":null,"request_id":0,"error":"success"}
-2026/09/20 14:33:08 SEND:  {"command":["cycle","pause"]}
-2026/09/20 14:33:08 READ:  {"data":null,"request_id":0,"error":"success"}
-2026/09/20 14:33:14 SEND:  {"command":["quit"]}
-2026/09/20 14:47:27 SEND:  {"command":["quit"]}
-2026/09/20 14:48:01 QUEUE: Excursions
-2026/09/20 14:48:12 SEND:  {"command":["quit"]}
-2026/09/20 14:48:59 SEND:  {"command":["quit"]}
-2026/09/20 14:49:12 SEND:  {"command":["quit"]}
-2026/09/20 14:50:15 SEND:  {"command":["quit"]}
-2026/09/20 14:53:31 SEND:  {"command":["quit"]}
-2026/09/20 15:06:56 QUEUE: Dreadlock Holiday
-2026/09/20 15:07:01 SEND:  {"command":["quit"]}
-2026/09/20 15:24:44 SEND:  {"command":["quit"]}
-2026/09/20 15:24:44 READ:  {"data":null,"request_id":0,"error":"success"}
-2026/09/20 15:26:32 QUEUE: Dreadlock Holiday
-2026/09/20 15:26:33 QUEUE: Dreadlock Holiday, Good Morning Judge
-2026/09/20 15:26:33 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love
-2026/09/20 15:26:34 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love, Art for Art's Sake
-2026/09/20 15:26:34 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love, Art for Art's Sake, Life Is a Minestrone
-2026/09/20 15:26:39 nowPlaying: 
-2026/09/20 15:26:39 SEND:  {"command":["stop"]}
-2026/09/20 15:26:39 READ:  {"data":null,"request_id":0,"error":"success"}
-2026/09/20 15:26:48 nowPlaying: 
-2026/09/20 15:26:48 SEND:  {"command":["stop"]}
-2026/09/20 15:26:48 READ:  {"data":null,"request_id":0,"error":"success"}
-2026/09/20 15:27:14 SEND:  {"command":["quit"]}
-2026/09/20 15:27:18 QUEUE: Dreadlock Holiday
-2026/09/20 15:27:19 QUEUE: Dreadlock Holiday, Good Morning Judge
-2026/09/20 15:27:19 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love
-2026/09/20 15:27:19 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love, Art for Art's Sake
-2026/09/20 15:27:21 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love, Art for Art's Sake, Life Is a Minestrone
-2026/09/20 15:27:25 QUEUE: Dreadlock Holiday, Good Morning Judge, I'm Not in Love, Life Is a Minestrone
-2026/09/20 15:27:30 QUEUE: Good Morning Judge, I'm Not in Love, Life Is a Minestrone
-2026/09/20 15:27:33 QUEUE: I'm Not in Love, Life Is a Minestrone
-2026/09/20 15:27:33 QUEUE: Life Is a Minestrone
-2026/09/20 15:27:34 QUEUE: 
-2026/09/20 15:28:21 SEND:  {"command":["quit"]}
+2026/09/20 21:52:06 SEND:  {"command":["observe_property",99,"time-pos"]}
+2026/09/20 21:52:06 SEND:  {"command":["loadfile","http://192.168.1.13:4533/navidrome/rest/stream?c=navitui\u0026f=json\u0026id=MVqd24lkmPQ7aJRz3XOjls\u0026p=x%23B%25%40%25TgEh%406sb%24354cl%26%40PA0\u0026u=joshw\u0026v=1.16.1","replace"]}
+2026/09/20 21:52:06 nowPlaying: Dreadlock Holiday
+2026/09/20 21:52:06 UI: 0.000000	NEW: 0.000000
+2026/09/20 21:52:22 SEND:  {"command":["quit"]}
+2026/09/20 21:55:40 SEND:  {"command":["observe_property",99,"time-pos"]}
+2026/09/20 21:55:40 SEND:  {"command":["loadfile","http://192.168.1.13:4533/navidrome/rest/stream?c=navitui\u0026f=json\u0026id=MVqd24lkmPQ7aJRz3XOjls\u0026p=x%23B%25%40%25TgEh%406sb%24354cl%26%40PA0\u0026u=joshw\u0026v=1.16.1","replace"]}
+2026/09/20 21:55:40 nowPlaying: Dreadlock Holiday
+2026/09/20 21:56:13 SEND:  {"command":["cycle","pause"]}
+2026/09/20 21:56:18 SEND:  {"command":["cycle","pause"]}
+2026/09/20 21:57:05 SEND:  {"command":["quit"]}
+2026/09/20 21:57:36 SEND:  {"command":["observe_property",99,"time-pos"]}
+2026/09/20 21:57:36 SEND:  {"command":["loadfile","http://192.168.1.13:4533/navidrome/rest/stream?c=navitui\u0026f=json\u0026id=TZB5344AgPswx4XfkepaJo\u0026p=x%23B%25%40%25TgEh%406sb%24354cl%26%40PA0\u0026u=joshw\u0026v=1.16.1","replace"]}
+2026/09/20 21:57:36 nowPlaying: Award Tour
+2026/09/20 21:58:28 SEND:  {"command":["quit"]}
+2026/09/20 21:58:41 SEND:  {"command":["observe_property",99,"time-pos"]}
+2026/09/20 21:58:41 SEND:  {"command":["loadfile","http://192.168.1.13:4533/navidrome/rest/stream?c=navitui\u0026f=json\u0026id=MVqd24lkmPQ7aJRz3XOjls\u0026p=x%23B%25%40%25TgEh%406sb%24354cl%26%40PA0\u0026u=joshw\u0026v=1.16.1","replace"]}
+2026/09/20 21:58:41 nowPlaying: Dreadlock Holiday
+2026/09/20 21:59:59 SEND:  {"command":["observe_property",99,"time-pos"]}
+2026/09/20 21:59:59 SEND:  {"command":["loadfile","http://192.168.1.13:4533/navidrome/rest/stream?c=navitui\u0026f=json\u0026id=DBfmyyuAO8BCLA2bJ2SPVY\u0026p=x%23B%25%40%25TgEh%406sb%24354cl%26%40PA0\u0026u=joshw\u0026v=1.16.1","replace"]}
+2026/09/20 21:59:59 nowPlaying: Control
+2026/09/20 22:00:05 SEND:  {"command":["observe_property",99,"time-pos"]}
+2026/09/20 22:00:05 SEND:  {"command":["loadfile","http://192.168.1.13:4533/navidrome/rest/stream?c=navitui\u0026f=json\u0026id=To85p4BvWllwa7EjCfrN7c\u0026p=x%23B%25%40%25TgEh%406sb%24354cl%26%40PA0\u0026u=joshw\u0026v=1.16.1","replace"]}
+2026/09/20 22:00:05 nowPlaying: It Was Fear of Myself That Made Me Odd
+2026/09/20 22:01:19 SEND:  {"command":["quit"]}

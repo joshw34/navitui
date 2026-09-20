@@ -31,6 +31,8 @@ func onKeypressSongs(key tea.KeyPressMsg, it list.Item, index int) tea.Cmd {
 		return func() tea.Msg { return playSongMsg{s.songs} }
 	case "a":
 		return func() tea.Msg { return addToQueueMsg{s.songs} }
+	case "n":
+		return func() tea.Msg { return playNextMsg{s.songs} }
 	}
 	return nil
 }

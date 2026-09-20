@@ -14,13 +14,14 @@ type Controller struct {
 	srv  *client.Client
 	db   *cache.Cache
 	play *player.Player
-	Queue
+	PlayerState
 	UIUpdate func(Update)
 }
 
-type Queue struct {
+type PlayerState struct {
 	queue      []types.Song
 	nowPlaying types.Song
+	timePos    float64
 	mu         sync.Mutex
 }
 
@@ -31,6 +32,7 @@ func New(srv *client.Client, db *cache.Cache, play *player.Player) *Controller {
 		play:       play,
 		queue:      []types.Song{},
 		nowPlaying: types.Song{},
+		timePos:    -1,
 	}
 	c.play.SetEventHandler(c.PlayerEventHandler)
 	return c

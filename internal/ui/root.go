@@ -3,7 +3,6 @@ package ui
 
 import (
 	"log"
-	"strings"
 
 	"charm.land/bubbles/v2/list"
 	tea "charm.land/bubbletea/v2"
@@ -135,9 +134,9 @@ func (m rootModel) globalKeyPresses(key tea.Msg) (bool, rootModel, tea.Cmd) {
 		case "2":
 			m.activePane = right
 			return true, m, nil
-		case "p":
+		case "space":
 			return true, m, func() tea.Msg {
-				if err := m.ctrl.TogglePause(); err != nil {
+				if err := m.ctrl.TogglePlayPause(); err != nil {
 					log.Println("UI: Pause Failed")
 				}
 				return nil
@@ -245,9 +244,19 @@ func (m rootModel) checkPlayerMessages(msg tea.Msg) (bool, rootModel, tea.Cmd) {
 			m.ctrl.QueueAddToEnd(msg.s)
 			return nil
 		}
+	case playNextMsg:
+		return true, m, func() tea.Msg {
+			m.ctrl.QueueAddNext(msg.s)
+			return nil
+		}
 	case removeFromQueueMsg:
 		return true, m, func() tea.Msg {
 			m.ctrl.QueueRemove(msg.index)
+			return nil
+		}
+	case clearQueueMsg:
+		return true, m, func() tea.Msg {
+			m.ctrl.QueueClear()
 			return nil
 		}
 	}
@@ -262,17 +271,17 @@ func (m rootModel) checkUpdateMessage(msg tea.Msg) (bool, rootModel, tea.Cmd) {
 	u := msg.(updateMsg).u
 	switch u.Type {
 	case controller.NowPlaying:
-		np := m.nowPlaying.(nowPlayingModel).updateData(u.NowPlaying)
+		np := m.nowPlaying.(nowPlayingModel).updateSong(u.NowPlaying)
 		m.nowPlaying = np
 		return true, m, nil
 	case controller.QueueUpdate:
-		var titles []string
-		for _, q := range u.Queue {
-			titles = append(titles, q.Title)
-		}
-		log.Printf("QUEUE: %s", strings.Join(titles, ", "))
 		lp := m.queue.(listPageModel)
 		m.queue = lp.updateList(queueToListItems(u.Queue))
+		return true, m, nil
+	case controller.TimePosUpdate:
+		//log.Printf("UI: %f\tNEW: %f", m.nowPlaying.(nowPlayingModel).timePos, u.TimePos)
+		np := m.nowPlaying.(nowPlayingModel).updateTP(u.TimePos)
+		m.nowPlaying = np
 		return true, m, nil
 	}
 	return false, m, nil

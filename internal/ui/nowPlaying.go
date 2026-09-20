@@ -9,7 +9,8 @@ import (
 )
 
 type nowPlayingModel struct {
-	song types.Song
+	song    types.Song
+	timePos float64
 }
 
 func (n nowPlayingModel) Update(msg tea.Msg) (pageModel, tea.Cmd) {
@@ -17,11 +18,16 @@ func (n nowPlayingModel) Update(msg tea.Msg) (pageModel, tea.Cmd) {
 }
 
 func (n nowPlayingModel) View() string {
-	return fmt.Sprintf("Title: %s\tArtist: %s\tAlbum: %s", n.song.Title, n.song.ArtistID, n.song.AlbumID)
+	return fmt.Sprintf("Title: %s\tArtist: %s\tAlbum: %s\nTime: %f", n.song.Title, n.song.Artist, n.song.Album, n.timePos)
 }
 
-func (n nowPlayingModel) updateData(s types.Song) nowPlayingModel {
+func (n nowPlayingModel) updateSong(s types.Song) nowPlayingModel {
 	n.song = s
+	return n
+}
+
+func (n nowPlayingModel) updateTP(tp float64) nowPlayingModel {
+	n.timePos = tp
 	return n
 }
 

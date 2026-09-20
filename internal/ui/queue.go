@@ -25,8 +25,10 @@ func onKeypressQueue(key tea.KeyPressMsg, it list.Item, index int) tea.Cmd {
 	switch key.String() {
 	//case "enter":
 	//	return func() tea.Msg { return playSongMsg{s.songs} }
-	case "d":
+	case "delete", "backspace":
 		return func() tea.Msg { return removeFromQueueMsg{index: index} }
+	case "c":
+		return func() tea.Msg { return clearQueueMsg{} }
 	}
 	_ = s
 	return nil

@@ -19,8 +19,21 @@ func (c *Controller) PlaySong(s types.Song) error {
 	return nil
 }
 
-func (c *Controller) TogglePause() error {
-	return c.play.TogglePause()
+func (c *Controller) TogglePlayPause() error {
+	c.mu.Lock()
+	if c.trackPlaying() {
+		c.mu.Unlock()
+		return c.play.TogglePause()
+	}
+	if c.queueEmpty() {
+		c.mu.Unlock()
+		return nil
+	}
+	next, snapshot := c.popNextAndReturnQueue()
+	c.mu.Unlock()
+	c.uiQueue(snapshot)
+	_ = c.PlaySong(next)
+	return nil
 }
 
 func (c *Controller) Stop() error {

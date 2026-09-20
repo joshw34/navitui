@@ -46,6 +46,12 @@ type addToQueueMsg struct {
 	s types.Song
 }
 
+type clearQueueMsg struct{}
+
+type playNextMsg struct {
+	s types.Song
+}
+
 type removeFromQueueMsg struct {
 	index int
 }

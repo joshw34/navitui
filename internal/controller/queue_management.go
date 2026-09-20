@@ -8,18 +8,16 @@ import (
 
 func (c *Controller) QueueAddToEnd(s types.Song) {
 	c.mu.Lock()
-	c.queue = slices.Insert(c.queue, len(c.queue), s)
-	snapshot := slices.Clone(c.queue)
+	snapshot := c.insertAndReturnQueue(len(c.queue), s)
 	c.mu.Unlock()
-	c.updateUIQueue(snapshot)
+	c.uiQueue(snapshot)
 }
 
 func (c *Controller) QueueAddNext(s types.Song) {
 	c.mu.Lock()
-	c.queue = slices.Insert(c.queue, 0, s)
-	snapshot := slices.Clone(c.queue)
+	snapshot := c.insertAndReturnQueue(0, s)
 	c.mu.Unlock()
-	c.updateUIQueue(snapshot)
+	c.uiQueue(snapshot)
 }
 
 func (c *Controller) QueueRemove(i int) {
@@ -28,36 +26,51 @@ func (c *Controller) QueueRemove(i int) {
 		c.mu.Unlock()
 		return
 	}
-	c.queue = slices.Delete(c.queue, i, i+1)
-	snapshot := slices.Clone(c.queue)
+	snapshot := c.deleteAndReturnQueue(i, i+1)
 	c.mu.Unlock()
-	c.updateUIQueue(snapshot)
+	c.uiQueue(snapshot)
 }
 
 func (c *Controller) QueueClear() {
 	c.mu.Lock()
-	c.queue = slices.Delete(c.queue, 0, len(c.queue))
-	snapshot := slices.Clone(c.queue)
+	snapshot := c.deleteAndReturnQueue(0, len(c.queue))
 	c.mu.Unlock()
-	c.updateUIQueue(snapshot)
+	c.uiQueue(snapshot)
 }
 
-func (c *Controller) QueuePlayNext() {
+func (c *Controller) QueueAdvance() {
 	c.mu.Lock()
-	if len(c.queue) == 0 {
+	if c.queueEmpty() {
 		c.mu.Unlock()
 		return
 	}
-	next := c.queue[0]
-	c.queue = slices.Delete(c.queue, 0, 1)
-	snapshot := slices.Clone(c.queue)
+	next, snapshot := c.popNextAndReturnQueue()
 	c.mu.Unlock()
+	c.uiQueue(snapshot)
 	_ = c.PlaySong(next)
-	c.updateUIQueue(snapshot)
 }
 
-func (c *Controller) updateUIQueue(q []types.Song) {
-	if c.UIUpdate != nil {
-		c.UIUpdate(Update{Type: QueueUpdate, Queue: q})
-	}
+// These functions must only be called when the mutex is locked
+
+func (c *Controller) popNextAndReturnQueue() (types.Song, []types.Song) {
+	next := c.queue[0]
+	return next, c.deleteAndReturnQueue(0, 1)
+}
+
+func (c *Controller) insertAndReturnQueue(i int, s types.Song) []types.Song {
+	c.queue = slices.Insert(c.queue, i, s)
+	return slices.Clone(c.queue)
+}
+
+func (c *Controller) deleteAndReturnQueue(start, end int) []types.Song {
+	c.queue = slices.Delete(c.queue, start, end)
+	return slices.Clone(c.queue)
+}
+
+func (c *Controller) queueEmpty() bool {
+	return len(c.queue) == 0
+}
+
+func (c *Controller) trackPlaying() bool {
+	return len(c.nowPlaying.ID) > 0
 }
