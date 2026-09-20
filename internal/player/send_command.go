@@ -2,6 +2,7 @@ package player
 
 import (
 	"encoding/json"
+	"log"
 )
 
 type ipcCommand struct {
@@ -17,11 +18,20 @@ func (p *Player) sendCommand(args ...any) error {
 	}
 	data = append(data, '\n')
 	_, err = p.conn.Write(data)
+	log.Printf("%s %s", "SEND: ", string(data))
 	return err
 }
 
-func (p *Player) Play(url string) error {
+func (p *Player) PlaySong(url string) error {
 	return p.sendCommand("loadfile", url, "replace")
+}
+
+func (p *Player) Stop() error {
+	return p.sendCommand("stop")
+}
+
+func (p *Player) TogglePause() error {
+	return p.sendCommand("cycle", "pause")
 }
 
 func (p *Player) Quit() error {

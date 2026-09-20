@@ -20,8 +20,13 @@ func (a albumsItem) Description() string {
 
 func (a albumsItem) FilterValue() string { return a.album.Name }
 
-func onSelectedAlbums(it list.Item) tea.Cmd {
-	return func() tea.Msg { return getSongsByAlbumMsg{it.(albumsItem).album.ID} }
+func onKeypressAlbums(key tea.KeyPressMsg, it list.Item) tea.Cmd {
+	a := it.(albumsItem)
+	switch key.String() {
+	case "enter":
+		return func() tea.Msg { return getSongsByAlbumMsg{a.album.ID} }
+	}
+	return nil
 }
 
 func albumsToListItems(albums []types.Album) []list.Item {

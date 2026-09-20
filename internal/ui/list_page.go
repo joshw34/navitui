@@ -7,7 +7,7 @@ import (
 
 type listPageModel struct {
 	list       list.Model
-	onSelected func(list.Item) tea.Cmd
+	onKeypress func(tea.KeyPressMsg, list.Item) tea.Cmd
 }
 
 func (l listPageModel) updateList(items []list.Item) listPageModel {
@@ -16,11 +16,12 @@ func (l listPageModel) updateList(items []list.Item) listPageModel {
 }
 
 func (l listPageModel) Update(msg tea.Msg) (pageModel, tea.Cmd) {
+	// Check for page-specific keypress
 	if key, ok := msg.(tea.KeyPressMsg); ok && l.list.FilterState() != list.Filtering {
-		switch key.String() {
-		case "enter":
-			if it := l.list.SelectedItem(); it != nil {
-				return l, l.onSelected(it)
+		if it := l.list.SelectedItem(); it != nil {
+			found := l.onKeypress(key, it)
+			if found != nil {
+				return l, l.onKeypress(key, it)
 			}
 		}
 	}

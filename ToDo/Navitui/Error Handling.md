@@ -1,0 +1,11 @@
+- Ensure proper error handling throughout
+	- Proper reporting:
+		- Network error
+		- DB Failure (corrupted/removed entirely)
+		- Invalid server credentials
+		- Cached item no longer exists on server
+		- Could not create db (why?)
+
+- Propagation to UI
+	- Resync library
+	- Re-enter credentials

@@ -23,8 +23,15 @@ func (a songsItem) Description() string {
 
 func (a songsItem) FilterValue() string { return a.songs.Title }
 
-func onSelectedSongs(it list.Item) tea.Cmd {
-	return func() tea.Msg { return playSongMsg{it.(songsItem).songs.ID} }
+func onKeypressSongs(key tea.KeyPressMsg, it list.Item) tea.Cmd {
+	s := it.(songsItem)
+	switch key.String() {
+	case "enter":
+		return func() tea.Msg { return playSongMsg{s.songs} }
+	case "a":
+		return func() tea.Msg { return addToQueueMsg{s.songs} }
+	}
+	return nil
 }
 
 func songsToListItems(songs []types.Song) []list.Item {

@@ -19,20 +19,26 @@ type mainModel struct {
 	list list.Model
 }
 
-func onSelectedMain(it list.Item) tea.Cmd {
-	switch it.(mainItem).option {
-	case "Artists":
-		return func() tea.Msg { return getAllArtistsMsg{} }
-	case "Albums":
-		return func() tea.Msg { return getAllAlbumsMsg{} }
-	case "Songs":
-		return func() tea.Msg { return getAllSongsMsg{} }
+func onKeypressMain(key tea.KeyPressMsg, it list.Item) tea.Cmd {
+	if key.String() == "enter" {
+		switch it.(mainItem).option {
+		case "Artists":
+			return func() tea.Msg { return getAllArtistsMsg{} }
+		case "Albums":
+			return func() tea.Msg { return getAllAlbumsMsg{} }
+		case "Songs":
+			return func() tea.Msg { return getAllSongsMsg{} }
+		}
 	}
 	return nil
 }
 
 func mainOptionsToListItem() []list.Item {
-	options := []mainItem{{option: "Artists", action: artists}, {option: "Albums", action: albums}, {option: "Songs", action: songs}}
+	options := []mainItem{
+		{option: "Artists", action: artists},
+		{option: "Albums", action: albums},
+		{option: "Songs", action: songs},
+	}
 	items := make([]list.Item, len(options))
 	for i, opt := range options {
 		items[i] = opt

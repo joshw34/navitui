@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -13,6 +14,12 @@ import (
 )
 
 func main() {
+	f, ferr := os.OpenFile("./logfile.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if ferr != nil {
+		fmt.Println(ferr)
+	}
+	log.SetOutput(f)
+	defer func() { _ = f.Close() }()
 	loadEnv()
 	srv := client.New(os.Getenv("NV_URL"), os.Getenv("NV_USER"), os.Getenv("NV_PASS"))
 	db, err := cache.New()

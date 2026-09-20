@@ -1,7 +1,13 @@
+// Package ui: bubbletea interface
 package ui
 
 import (
+	"log"
+	"strings"
+
+	"charm.land/bubbles/v2/list"
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/joshw34/navitui/internal/controller"
 )
 
@@ -22,10 +28,12 @@ type pageModel interface {
 
 // MAIN BUBBLETEA INTERFACE
 type rootModel struct {
-	current  page
-	previous []page
-	pages    map[page]pageModel
-	ctrl     *controller.Controller
+	current                               page
+	previous                              []page
+	pages                                 map[page]pageModel
+	queue                                 pageModel
+	height, width, listH, listW, npH, npW int
+	ctrl                                  *controller.Controller
 }
 
 func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -49,6 +57,11 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return newRoot, newCmd
 	}
 
+	found, newRoot, newCmd = m.checkUpdateMessage(msg)
+	if found {
+		return newRoot, newCmd
+	}
+
 	found, newRoot, newCmd = m.checkPlayerMessages(msg)
 	if found {
 		return newRoot, newCmd
@@ -58,13 +71,26 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m rootModel) View() tea.View {
-	s := m.pages[m.current].View()
-	v := tea.NewView(s)
+	leftStyle := lipgloss.NewStyle().Width(m.listW).Height(m.listH).
+		Border(lipgloss.RoundedBorder(), true, true, true, true)
+	rightStyle := lipgloss.NewStyle().Width(m.listW).Height(m.listH).
+		Border(lipgloss.RoundedBorder(), true, true, true, true)
+	bottomStyle := lipgloss.NewStyle().Width(m.npW).Height(m.npH).
+		Border(lipgloss.RoundedBorder(), true, true, true, true)
+
+	left := leftStyle.Render(m.pages[m.current].View())
+	right := rightStyle.Render(m.queue.View())
+	bottom := bottomStyle.Render("\nNow Playing...")
+
+	top := lipgloss.JoinHorizontal(lipgloss.Top, left, right)
+	full := lipgloss.JoinVertical(lipgloss.Left, top, bottom)
+	v := tea.NewView(full)
 	v.AltScreen = true
 	return v
 }
 
 func (m rootModel) Init() tea.Cmd {
+	// TODO: Confirm this is needed
 	m.pages[main].(listPageModel).Update(mainOptionsToListItem())
 	return nil
 }
@@ -72,27 +98,57 @@ func (m rootModel) Init() tea.Cmd {
 // UPDATE() HELPERS
 func (m rootModel) setWindowSize(msg tea.Msg) (bool, rootModel, tea.Cmd) {
 	if msg, ok := msg.(tea.WindowSizeMsg); ok {
+		m.height, m.width, m.listH, m.listW, m.npH, m.npW = msg.Height, msg.Width, msg.Height*85/100, msg.Width/2, msg.Height*15/100, msg.Width
 		for key, p := range m.pages {
 			if lp, ok := p.(listPageModel); ok {
-				lp.list.SetSize(msg.Width, msg.Height)
+				lp.list.SetSize(m.listW, m.listH)
 				m.pages[key] = lp
 			}
 		}
+		q := m.queue.(listPageModel)
+		q.list.SetSize(m.listW, m.listH)
+		m.queue = q
 		return true, m, nil
 	}
 	return false, m, nil
 }
 
 func (m rootModel) globalKeyPresses(key tea.Msg) (bool, rootModel, tea.Cmd) {
-	if key, ok := key.(tea.KeyPressMsg); ok {
+	if key, ok := key.(tea.KeyPressMsg); ok && !m.isFiltering() {
 		switch key.String() {
 		case "ctrl+c":
 			return true, m, tea.Quit
 		case "esc":
 			return true, m.goToPreviousPage(), nil
+		case "p":
+			return true, m, func() tea.Msg {
+				if err := m.ctrl.TogglePause(); err != nil {
+					log.Println("UI: Pause Failed")
+				}
+				return nil
+			}
+		case "x":
+			return true, m, func() tea.Msg {
+				if err := m.ctrl.Stop(); err != nil {
+					log.Println("UI: Stop Failed")
+				}
+				return nil
+			}
 		}
+
 	}
 	return false, m, nil
+}
+
+func (m rootModel) isFiltering() bool {
+	for _, p := range m.pages {
+		if lp, ok := p.(listPageModel); ok {
+			if lp.list.FilterState() == list.Filtering {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (m rootModel) goToPage(newPage page) rootModel {
@@ -164,9 +220,39 @@ func (m rootModel) checkPlayerMessages(msg tea.Msg) (bool, rootModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case playSongMsg:
 		return true, m, func() tea.Msg {
-			_ = m.ctrl.Play(msg.songID)
+			if err := m.ctrl.PlaySong(msg.s); err != nil {
+				log.Println("UI: Play Failed")
+			}
 			return nil
 		}
+	case addToQueueMsg:
+		return true, m, func() tea.Msg {
+			m.ctrl.QueueAddToEnd(msg.s)
+			return nil
+		}
+	}
+	return false, m, nil
+}
+
+func (m rootModel) checkUpdateMessage(msg tea.Msg) (bool, rootModel, tea.Cmd) {
+	_, ok := msg.(updateMsg)
+	if !ok {
+		return false, m, nil
+	}
+	u := msg.(updateMsg).u
+	switch u.Type {
+	case controller.NowPlaying:
+		// TODO: update this when now playing page is created
+		return true, m, nil
+	case controller.QueueUpdate:
+		var titles []string
+		for _, q := range u.Queue {
+			titles = append(titles, q.Title)
+		}
+		log.Printf("QUEUE: %s", strings.Join(titles, ", "))
+		lp := m.queue.(listPageModel)
+		m.queue = lp.updateList(songsToListItems(u.Queue))
+		return true, m, nil
 	}
 	return false, m, nil
 }

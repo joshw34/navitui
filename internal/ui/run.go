@@ -9,6 +9,9 @@ import (
 func StartUI(ctrl *controller.Controller) error {
 	root := newRootModel(ctrl)
 	p := tea.NewProgram(root)
+	ctrl.SetUpdateHandler(func(u controller.Update) {
+		p.Send(updateMsg{u})
+	})
 	if _, err := p.Run(); err != nil {
 		return err
 	}
@@ -20,12 +23,13 @@ func newRootModel(ctrl *controller.Controller) rootModel {
 		current:  main,
 		previous: []page{},
 		pages: map[page]pageModel{
-			main:    listPageModel{list: newMainList(), onSelected: onSelectedMain},
-			artists: listPageModel{list: newEmptyList("Artists"), onSelected: onSelectedArtists},
-			albums:  listPageModel{list: newEmptyList("Albums"), onSelected: onSelectedAlbums},
-			songs:   listPageModel{list: newEmptyList("Songs"), onSelected: onSelectedSongs},
+			main:    listPageModel{list: newMainList(), onKeypress: onKeypressMain},
+			artists: listPageModel{list: newEmptyList("Artists"), onKeypress: onKeypressArtists},
+			albums:  listPageModel{list: newEmptyList("Albums"), onKeypress: onKeypressAlbums},
+			songs:   listPageModel{list: newEmptyList("Songs"), onKeypress: onKeypressSongs},
 		},
-		ctrl: ctrl,
+		queue: listPageModel{list: newEmptyList("Queue"), onKeypress: onKeypressQueue},
+		ctrl:  ctrl,
 	}
 }
 

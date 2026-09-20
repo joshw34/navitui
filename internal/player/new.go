@@ -8,8 +8,9 @@ import (
 )
 
 type Player struct {
-	cmd  *exec.Cmd
-	conn net.Conn
+	cmd     *exec.Cmd
+	conn    net.Conn
+	onEvent func(Event) // Set during controller.New()
 }
 
 func New() (player *Player, err error) {
@@ -22,11 +23,13 @@ func New() (player *Player, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Player{cmd: cmd, conn: conn}, nil
+	p := &Player{cmd: cmd, conn: conn}
+	p.startReader()
+	return p, nil
 }
 
 func connectIPC(sockPath string) (net.Conn, error) {
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		conn, err := net.Dial("unix", sockPath)
 		if err == nil {
 			return conn, nil
@@ -34,6 +37,14 @@ func connectIPC(sockPath string) (net.Conn, error) {
 		time.Sleep(50 * time.Millisecond)
 	}
 	return nil, fmt.Errorf("mpv IPC socket %s never appeared after 2.5s", sockPath)
+}
+
+func (p *Player) SetEventHandler(fn func(Event)) {
+	p.onEvent = fn
+}
+
+func (p *Player) startReader() {
+	go p.readLoop()
 }
 
 func (p *Player) Close() error {
