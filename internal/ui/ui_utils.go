@@ -1,6 +1,8 @@
 package ui
 
-import "strconv"
+import (
+	"strconv"
+)
 
 func pluralize(s string, n int) string {
 	if n > 1 {

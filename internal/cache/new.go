@@ -62,6 +62,7 @@ func (c *Cache) createTables() (sql.Result, error) {
 		);
 
 		CREATE INDEX IF NOT EXISTS idx_albums_artistId ON albums(artistId);
+		CREATE INDEX IF NOT EXISTS idx_albums_name ON albums(name COLLATE NOCASE);
 		
 		CREATE TABLE IF NOT EXISTS songs (
 		    id TEXT PRIMARY KEY,
@@ -75,7 +76,9 @@ func (c *Cache) createTables() (sql.Result, error) {
 		    disc INTEGER NOT NULL DEFAULT 1
 		);
 
-		CREATE INDEX IF NOT EXISTS idx_songs_artistId ON songs(artistId);`
+		CREATE INDEX IF NOT EXISTS idx_songs_artistId ON songs(artistId);
+		CREATE INDEX IF NOT EXISTS idx_songs_title ON songs(title COLLATE NOCASE);
+		CREATE INDEX IF NOT EXISTS idx_songs_album_track ON songs(albumId, disc, track);`
 
 	return c.Data.Exec(schema)
 }

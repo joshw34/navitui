@@ -1,0 +1,6 @@
+- Implement user configuration:
+	- DB Cache
+		- Expiry
+		- Disable
+		- RAM only
+	- 

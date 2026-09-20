@@ -12,28 +12,36 @@ type mainItem struct {
 }
 
 func (a mainItem) Title() string       { return a.option }
-func (a mainItem) Description() string { return "" }       // or genre, etc.
-func (a mainItem) FilterValue() string { return a.option } // what filtering matches on
+func (a mainItem) Description() string { return "" }
+func (a mainItem) FilterValue() string { return a.option }
 
 type mainModel struct {
 	list list.Model
 }
 
-func (m mainModel) Update(msg tea.Msg) (mainModel, tea.Cmd) {
-	if key, ok := msg.(tea.KeyPressMsg); ok && key.String() == "enter" {
-		if it, ok := m.list.SelectedItem().(mainItem); ok {
-			switch it.action {
-			case artistsList:
-				return m, func() tea.Msg { return getArtistsListMsg{} }
-			}
+func onKeypressMain(key tea.KeyPressMsg, it list.Item) tea.Cmd {
+	if key.String() == "enter" {
+		switch it.(mainItem).option {
+		case "Artists":
+			return func() tea.Msg { return getAllArtistsMsg{} }
+		case "Albums":
+			return func() tea.Msg { return getAllAlbumsMsg{} }
+		case "Songs":
+			return func() tea.Msg { return getAllSongsMsg{} }
 		}
 	}
-
-	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
-	return m, cmd
+	return nil
 }
 
-func (m mainModel) View() string {
-	return m.list.View()
+func mainOptionsToListItem() []list.Item {
+	options := []mainItem{
+		{option: "Artists", action: artists},
+		{option: "Albums", action: albums},
+		{option: "Songs", action: songs},
+	}
+	items := make([]list.Item, len(options))
+	for i, opt := range options {
+		items[i] = opt
+	}
+	return items
 }
