@@ -4,13 +4,21 @@ import (
 	"fmt"
 	"net"
 	"os/exec"
+	"sync"
 	"time"
 )
 
 type Player struct {
-	cmd     *exec.Cmd
-	conn    net.Conn
+	cmd  *exec.Cmd
+	conn net.Conn
+	pending
 	onEvent func(Event) // Set during controller.New()
+}
+
+type pending struct {
+	pendingPlays map[uint64]uint64
+	waitingLoad  uint64
+	mu           sync.Mutex
 }
 
 func New() (player *Player, err error) {
@@ -25,6 +33,11 @@ func New() (player *Player, err error) {
 	}
 	p := &Player{cmd: cmd, conn: conn}
 	p.startReader()
+	p.pendingPlays = map[uint64]uint64{}
+	err = p.observeTimePos()
+	if err != nil {
+		return nil, err
+	}
 	return p, nil
 }
 

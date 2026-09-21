@@ -6,12 +6,12 @@ import (
 )
 
 type ipcCommand struct {
-	Command   []any `json:"command"`
-	RequestID []int `json:"request_id,omitempty"`
+	Command   []any  `json:"command"`
+	RequestID uint64 `json:"request_id,omitempty"`
 }
 
-func (p *Player) sendCommand(args ...any) error {
-	cmd := ipcCommand{Command: args}
+func (p *Player) sendCommand(reqId uint64, args ...any) error {
+	cmd := ipcCommand{Command: args, RequestID: reqId}
 	data, err := json.Marshal(cmd)
 	if err != nil {
 		return err
@@ -22,23 +22,30 @@ func (p *Player) sendCommand(args ...any) error {
 	return err
 }
 
-func (p *Player) PlaySong(url string) error {
-	_ = p.observeTimePos()
-	return p.sendCommand("loadfile", url, "replace")
+func (p *Player) PlaySong(reqId uint64, url string) error {
+	err := p.sendCommand(reqId, "loadfile", url, "replace")
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (p *Player) Stop() error {
-	return p.sendCommand("stop")
+	return p.sendCommand(0, "stop")
 }
 
 func (p *Player) TogglePause() error {
-	return p.sendCommand("cycle", "pause")
+	return p.sendCommand(0, "cycle", "pause")
 }
 
 func (p *Player) Quit() error {
-	return p.sendCommand("quit")
+	return p.sendCommand(0, "quit")
 }
 
 func (p *Player) observeTimePos() error {
-	return p.sendCommand("observe_property", 99, "time-pos")
+	return p.sendCommand(0, "observe_property", 0, "time-pos")
+}
+
+func (p *Player) Seek(t float64) error {
+	return p.sendCommand(0, "set_property", "time-pos", t)
 }

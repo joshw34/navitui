@@ -1,1 +1,2 @@
 - Song file caching
+- Scrobbling

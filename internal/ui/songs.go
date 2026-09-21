@@ -18,7 +18,7 @@ func (a songsItem) Title() string { return a.songs.Title }
 
 func (a songsItem) Description() string {
 	d, _ := time.ParseDuration(strconv.Itoa(a.songs.Duration) + "s")
-	return fmt.Sprintf("%v", d)
+	return fmt.Sprintf("%v - %s", d, a.songs.Album)
 }
 
 func (a songsItem) FilterValue() string { return a.songs.Title }

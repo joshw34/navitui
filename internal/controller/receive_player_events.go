@@ -22,13 +22,18 @@ type Update struct {
 
 func (c *Controller) PlayerEventHandler(e player.Event) {
 	switch e.Type {
-	case player.Finished:
+	case player.PlaybackEOF:
 		c.uiTimePos(0)
-		c.QueueAdvance()
-	case player.Stopped:
+		c.setNowPlaying(types.Song{})
+		_ = c.QueueAdvance()
+	case player.PlaybackStopped:
 		c.uiTimePos(0)
-		return
-	case player.TimePos:
+		c.setNowPlaying(types.Song{})
+	case player.PlaybackPos:
 		c.uiTimePos(e.Time)
+	case player.PlaybackStarted:
+		c.setNowPlaying(c.pendingRemove(e.RequestId))
+	case player.PlaybackError:
+		_ = c.pendingRemove(e.RequestId)
 	}
 }

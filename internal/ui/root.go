@@ -154,6 +154,34 @@ func (m rootModel) globalKeyPresses(key tea.Msg) (bool, rootModel, tea.Cmd) {
 				}
 				return nil
 			}
+		case ".":
+			return true, m, func() tea.Msg {
+				if err := m.ctrl.Seek(controller.Forward); err != nil {
+					log.Println("UI: Seek Forward Failed")
+				}
+				return nil
+			}
+		case ",":
+			return true, m, func() tea.Msg {
+				if err := m.ctrl.Seek(controller.Backward); err != nil {
+					log.Println("UI: Seek Forward Failed")
+				}
+				return nil
+			}
+		case ">":
+			return true, m, func() tea.Msg {
+				if err := m.ctrl.Skip(controller.Forward); err != nil {
+					log.Println("UI: Skip Forward Failed")
+				}
+				return nil
+			}
+		case "<":
+			return true, m, func() tea.Msg {
+				if err := m.ctrl.Skip(controller.Backward); err != nil {
+					log.Println("UI: Seek Backward Failed")
+				}
+				return nil
+			}
 		}
 
 	}

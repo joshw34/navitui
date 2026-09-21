@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"log"
 
 	"charm.land/bubbles/v2/list"
 	"charm.land/bubbles/v2/progress"
@@ -29,8 +28,6 @@ func (n nowPlayingModel) Update(msg tea.Msg) (pageModel, tea.Cmd) {
 }
 
 func (n nowPlayingModel) View() string {
-	//t, _ := time.ParseDuration(strconv.Itoa(n.timePos) + "s")
-	//return fmt.Sprintf("Title: %s\tArtist: %s\tAlbum: %s\nTime: %v", n.song.Title, n.song.Artist, n.song.Album, t)
 	return fmt.Sprintf("Track: %s\nAlbum: %s\nArtist: %s\n%s", n.song.Title, n.song.Album, n.song.Artist, n.prog.ViewAs(n.percentage))
 }
 
@@ -41,8 +38,12 @@ func (n nowPlayingModel) updateSong(s types.Song) nowPlayingModel {
 
 func (n nowPlayingModel) updateTP(tp float64) nowPlayingModel {
 	n.timePos = tp
-	n.percentage = tp / float64(n.song.Duration)
-	log.Printf("PERCENT: %f", n.percentage)
+	switch n.song.Duration {
+	case 0:
+		n.percentage = 0.0
+	default:
+		n.percentage = tp / float64(n.song.Duration)
+	}
 	return n
 }
 
