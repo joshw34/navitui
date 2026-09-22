@@ -1,11 +1,9 @@
 package player
 
 import (
-	"fmt"
 	"net"
 	"os/exec"
 	"sync"
-	"time"
 )
 
 type Player struct {
@@ -22,12 +20,12 @@ type pending struct {
 }
 
 func New() (player *Player, err error) {
-	cmd := exec.Command("mpv", "--idle", "--input-ipc-server=/tmp/navitui-mpv.sock", "--no-video")
+	cmd := exec.Command("mpv", "--idle", "--input-ipc-server="+ipcSocketPath, "--no-video")
 	if err := cmd.Start(); err != nil {
 		return nil, err
 	}
 
-	conn, err := connectIPC("/tmp/navitui-mpv.sock")
+	conn, err := connectIPC() // platform-specific, no arg
 	if err != nil {
 		return nil, err
 	}
@@ -39,17 +37,6 @@ func New() (player *Player, err error) {
 		return nil, err
 	}
 	return p, nil
-}
-
-func connectIPC(sockPath string) (net.Conn, error) {
-	for range 50 {
-		conn, err := net.Dial("unix", sockPath)
-		if err == nil {
-			return conn, nil
-		}
-		time.Sleep(50 * time.Millisecond)
-	}
-	return nil, fmt.Errorf("mpv IPC socket %s never appeared after 2.5s", sockPath)
 }
 
 func (p *Player) SetEventHandler(fn func(Event)) {

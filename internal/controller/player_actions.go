@@ -31,15 +31,11 @@ func (c *Controller) TogglePlayPause() error {
 	if c.trackIsPlaying() {
 		return c.play.TogglePause()
 	}
-	if c.queueIsEmpty() {
-		return nil
+	next, ok := c.queuePopNext()
+	if !ok {
+		return nil // not an actual error, nothing left in queue
 	}
-	next := c.queuePopNext()
-	err := c.PlaySong(next)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.PlaySong(next)
 }
 
 func (c *Controller) Stop() error {
@@ -71,10 +67,10 @@ func (c *Controller) Skip(d SeekDirection) error {
 	}
 	switch d {
 	case Forward:
-		if c.queueIsEmpty() {
-			return c.play.Stop()
+		next, ok := c.queuePopNext()
+		if !ok {
+			return c.play.Stop() // not an error, nothing left in queue (essentially falls back to previous if)
 		}
-		next := c.queuePopNext()
 		return c.PlaySong(next)
 	case Backward:
 		return c.play.Seek(0)
@@ -86,9 +82,9 @@ func (c *Controller) Skip(d SeekDirection) error {
 
 func (c *Controller) setNowPlaying(s types.Song) {
 	c.nowPlayingMutex.Lock()
-	defer c.nowPlayingMutex.Unlock()
 	c.nowPlaying = s
-	c.uiNowPLaying(s)
+	c.nowPlayingMutex.Unlock()
+	c.uiNowPlaying(s)
 }
 
 func (c *Controller) getReqID() uint64 {
@@ -121,30 +117,58 @@ func (c *Controller) pendingRemove(reqID uint64) types.Song {
 	return s
 }
 
-func (c *Controller) queuePopNext() types.Song {
+func (c *Controller) queuePopNext() (types.Song, bool) {
 	c.queueMutex.Lock()
-	defer c.queueMutex.Unlock()
+	if len(c.queue) == 0 {
+		c.queueMutex.Unlock()
+		return types.Song{}, false
+	}
 	next := c.queue[0]
 	c.queue = slices.Delete(c.queue, 0, 1)
-	c.uiQueue(slices.Clone(c.queue))
-	return next
+	snapshot := slices.Clone(c.queue)
+	c.queueMutex.Unlock()
+	c.uiQueue(snapshot)
+	return next, true
 }
 
 func (c *Controller) queueInsert(i int, s types.Song) {
 	c.queueMutex.Lock()
-	defer c.queueMutex.Unlock()
+	if i < 0 || i > len(c.queue) {
+		c.queueMutex.Unlock()
+		return
+	}
 	c.queue = slices.Insert(c.queue, i, s)
-	c.uiQueue(slices.Clone(c.queue))
+	snapshot := slices.Clone(c.queue)
+	c.queueMutex.Unlock()
+	c.uiQueue(snapshot)
+}
+
+func (c *Controller) queueAppend(s types.Song) {
+	c.queueMutex.Lock()
+	c.queue = append(c.queue, s)
+	snapshot := slices.Clone(c.queue)
+	c.queueMutex.Unlock()
+	c.uiQueue(snapshot)
 }
 
 func (c *Controller) queueDelete(start, end int) {
 	c.queueMutex.Lock()
 	if start < 0 || start >= len(c.queue) {
+		c.queueMutex.Unlock()
 		return
 	}
-	defer c.queueMutex.Unlock()
 	c.queue = slices.Delete(c.queue, start, end)
-	c.uiQueue(slices.Clone(c.queue))
+	snapshot := slices.Clone(c.queue)
+	c.queueMutex.Unlock()
+	c.uiQueue(snapshot)
+}
+
+func (c *Controller) queueDeleteAll() {
+	c.queueMutex.Lock()
+	c.queue = []types.Song{}
+	snapshot := slices.Clone(c.queue)
+	c.queueMutex.Unlock()
+	c.uiQueue(snapshot)
 }
 
 func (c *Controller) queueIsEmpty() bool {

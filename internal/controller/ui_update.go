@@ -26,7 +26,7 @@ func (c *Controller) uiTimePos(tp float64) {
 	}
 }
 
-func (c *Controller) uiNowPLaying(s types.Song) {
+func (c *Controller) uiNowPlaying(s types.Song) {
 	if c.UIUpdate != nil {
 		c.UIUpdate(Update{Type: NowPlaying, NowPlaying: s})
 	}

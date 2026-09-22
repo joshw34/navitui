@@ -5,7 +5,7 @@ import (
 )
 
 func (c *Controller) QueueAddToEnd(s types.Song) {
-	c.queueInsert(len(c.queue), s)
+	c.queueAppend(s)
 }
 
 func (c *Controller) QueueAddNext(s types.Song) {
@@ -17,13 +17,13 @@ func (c *Controller) QueueRemove(i int) {
 }
 
 func (c *Controller) QueueClear() {
-	c.queueDelete(0, len(c.queue))
+	c.queueDeleteAll()
 }
 
 func (c *Controller) QueueAdvance() error {
-	if c.queueIsEmpty() {
-		return nil
+	next, ok := c.queuePopNext()
+	if !ok {
+		return nil // no error, queue is empty
 	}
-	next := c.queuePopNext()
 	return c.PlaySong(next)
 }
