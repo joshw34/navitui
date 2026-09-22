@@ -27,7 +27,11 @@ go.work.sum
 # env file
 .env
 
+# dev log
 logfile.txt
+
+# executable
+navitui
 # Editor/IDE
 # .idea/
 # .vscode/
