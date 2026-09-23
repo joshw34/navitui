@@ -1,15 +1,19 @@
-package client
+package navidrome
 
 import (
 	"encoding/json"
 	"fmt"
 	"maps"
+	"net"
 	"net/http"
 	"net/url"
+	"strconv"
+
+	"github.com/joshw34/navitui/internal/types"
 )
 
 // TODO: Add http return code check to avoid json parsing error html
-func (c *Client) serverRequest(reqType string, extraParams url.Values) (*jsonResponse, error) {
+func (c *Navidrome) serverRequest(reqType string, extraParams url.Values) (*jsonResponse, error) {
 	u, err := c.getURL(reqType, extraParams)
 	if err != nil {
 		return nil, err
@@ -40,15 +44,32 @@ func (c *Client) serverRequest(reqType string, extraParams url.Values) (*jsonRes
 	return &resp, nil
 }
 
-func (c *Client) GetStreamURL(songID string) (string, error) {
+func (c *Navidrome) GetStreamURL(songID string) (string, error) {
 	v := url.Values{}
 	v.Set("id", songID)
 	//v.Set("format", "raw")
 	return c.getURL("stream", v)
 }
 
-func (c *Client) getURL(req string, extraParams url.Values) (string, error) {
-	u, err := url.Parse(c.baseURL + req)
+func (c *Navidrome) PingTest(host string, port int) types.PingResult {
+	baseURL, err := url.JoinPath(host, "rest", "ping")
+	if err != nil {
+		return types.URLBuildFailure
+	}
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return types.URLBuildFailure
+	}
+	u.Host = net.JoinHostPort(u.Host, strconv.Itoa(port))
+	return types.AuthFailure
+}
+
+func (c *Navidrome) getURL(req string, extraParams url.Values) (string, error) {
+	uPath, err := url.JoinPath(c.baseURL, req)
+	if err != nil {
+		return "", err
+	}
+	u, err := url.Parse(uPath)
 	if err != nil {
 		return "", err
 	}

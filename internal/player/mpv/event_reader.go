@@ -1,26 +1,12 @@
-package player
+package mpv
 
 import (
 	"bufio"
 	"encoding/json"
 	"log"
+
+	"github.com/joshw34/navitui/internal/player"
 )
-
-type EventType int
-
-const (
-	PlaybackEOF EventType = iota
-	PlaybackStopped
-	PlaybackPos
-	PlaybackStarted
-	PlaybackError
-)
-
-type Event struct {
-	Type      EventType
-	Time      float64
-	RequestId uint64
-}
 
 type jsonEvent struct {
 	RequestID       uint64          `json:"request_id"`
@@ -36,15 +22,13 @@ type jsonPlaylistEntryID struct {
 	PlaylistEntryID uint64 `json:"playlist_entry_id"`
 }
 
-const minReqId = 1
-
-func (p *Player) emit(ev Event) {
+func (p *Mpv) emit(ev player.Event) {
 	if p.onEvent != nil {
 		p.onEvent(ev)
 	}
 }
 
-func (p *Player) readLoop() {
+func (p *Mpv) readLoop() {
 	scanner := bufio.NewScanner(p.conn)
 	for scanner.Scan() {
 		line := scanner.Bytes()
@@ -60,13 +44,13 @@ func (p *Player) readLoop() {
 	}
 }
 
-func (p *Player) handleLine(line []byte) {
+func (p *Mpv) handleLine(line []byte) {
 	var check jsonEvent
 	err := json.Unmarshal(line, &check)
 	if err != nil {
 		log.Printf("player.handleLine(): %s %s", err.Error(), string(line))
 	}
-	if check.RequestID >= minReqId ||
+	if check.RequestID >= player.MinReqId ||
 		check.Event == "start-file" ||
 		check.Event == "file-loaded" ||
 		check.Event == "end-file" {
@@ -79,7 +63,7 @@ func (p *Player) handleLine(line []byte) {
 	}
 }
 
-func (p *Player) propertyChange(check jsonEvent) {
+func (p *Mpv) propertyChange(check jsonEvent) {
 	switch check.Name {
 	case "time-pos":
 		var tp float64
@@ -87,14 +71,14 @@ func (p *Player) propertyChange(check jsonEvent) {
 		if err != nil {
 			return
 		}
-		p.emit(Event{
-			Type: PlaybackPos,
+		p.emit(player.Event{
+			Type: player.PlaybackPos,
 			Time: tp,
 		})
 	}
 }
 
-func (p *Player) playStatus(check jsonEvent) bool {
+func (p *Mpv) playStatus(check jsonEvent) bool {
 	var pID jsonPlaylistEntryID
 	pIDErr := json.Unmarshal(check.Data, &pID)
 	switch {
@@ -108,12 +92,12 @@ func (p *Player) playStatus(check jsonEvent) bool {
 
 	case check.Event == "file-loaded": // file from last start-file has begun playing. clear from pending and waiting load
 		reqID := p.pendingPlays[p.waitingLoad]
-		if reqID < minReqId { // missing requestId
+		if reqID < player.MinReqId { // missing requestId
 			return true
 		}
 		delete(p.pendingPlays, p.waitingLoad)
 		p.waitingLoad = 0
-		p.emit(Event{Type: PlaybackStarted, RequestId: reqID})
+		p.emit(player.Event{Type: player.PlaybackStarted, RequestId: reqID})
 		return true
 	}
 
@@ -121,20 +105,20 @@ func (p *Player) playStatus(check jsonEvent) bool {
 		switch check.Reason {
 		case "error":
 			reqID := p.pendingPlays[check.PlaylistEntryID]
-			if reqID < minReqId {
+			if reqID < player.MinReqId {
 				return true
 			}
 			delete(p.pendingPlays, check.PlaylistEntryID)
 			if p.waitingLoad == check.PlaylistEntryID {
 				p.waitingLoad = 0
 			}
-			p.emit(Event{Type: PlaybackError, RequestId: reqID})
+			p.emit(player.Event{Type: player.PlaybackError, RequestId: reqID})
 			return true
 		case "eof":
-			p.emit(Event{Type: PlaybackEOF})
+			p.emit(player.Event{Type: player.PlaybackEOF})
 			return true
 		case "stop":
-			p.emit(Event{Type: PlaybackStopped})
+			p.emit(player.Event{Type: player.PlaybackStopped})
 			return true
 		}
 	}

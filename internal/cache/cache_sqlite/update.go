@@ -1,4 +1,4 @@
-package cache
+package cache_sqlite
 
 import (
 	"database/sql"
@@ -6,9 +6,7 @@ import (
 	"github.com/joshw34/navitui/internal/types"
 )
 
-// TODO: Add upsert behaviour
-
-func (c *Cache) UpdateArtists(a []types.Artist, resync bool) error {
+func (c *CacheSQLite) UpdateArtists(a []types.Artist, resync bool) error {
 	var tx *sql.Tx
 	var stmt *sql.Stmt
 	var err error
@@ -45,7 +43,7 @@ func (c *Cache) UpdateArtists(a []types.Artist, resync bool) error {
 	return tx.Commit()
 }
 
-func (c *Cache) UpdateAlbums(a []types.Album, resync bool) error {
+func (c *CacheSQLite) UpdateAlbums(a []types.Album, resync bool) error {
 	var tx *sql.Tx
 	var stmt *sql.Stmt
 	var err error
@@ -92,7 +90,7 @@ func (c *Cache) UpdateAlbums(a []types.Album, resync bool) error {
 	return tx.Commit()
 }
 
-func (c *Cache) UpdateSongs(s []types.Song, resync bool) error {
+func (c *CacheSQLite) UpdateSongs(s []types.Song, resync bool) error {
 	var tx *sql.Tx
 	var stmt *sql.Stmt
 	var err error
@@ -137,7 +135,7 @@ func (c *Cache) UpdateSongs(s []types.Song, resync bool) error {
 	return tx.Commit()
 }
 
-func (c *Cache) ResyncLibrary(artists []types.Artist, albums []types.Album, songs []types.Song) error {
+func (c *CacheSQLite) ResyncLibrary(artists []types.Artist, albums []types.Album, songs []types.Song) error {
 	var err error
 	err = c.UpdateArtists(artists, true)
 	if err != nil {

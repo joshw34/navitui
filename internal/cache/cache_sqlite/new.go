@@ -1,5 +1,5 @@
-// Package cache: Database handler
-package cache
+// Package cache_sqlite: implement the types.Cache interface for sqlite
+package cache_sqlite
 
 import (
 	"database/sql"
@@ -7,15 +7,18 @@ import (
 	"path/filepath"
 
 	"github.com/adrg/xdg"
+	"github.com/joshw34/navitui/internal/types"
 	_ "modernc.org/sqlite"
 )
 
-type Cache struct {
+var _ types.Cache = (*CacheSQLite)(nil)
+
+type CacheSQLite struct {
 	Data         *sql.DB
 	SyncRequired bool
 }
 
-func New() (*Cache, error) {
+func New() (*CacheSQLite, error) {
 	cacheDir := filepath.Join(xdg.CacheHome, "navitui")
 	err := os.MkdirAll(cacheDir, 0o700)
 	if err != nil {
@@ -32,7 +35,7 @@ func New() (*Cache, error) {
 		return nil, err
 	}
 
-	var result Cache
+	var result CacheSQLite
 	result.Data = db
 	result.SyncRequired = newDB
 	_, err = result.createTables()
@@ -43,7 +46,7 @@ func New() (*Cache, error) {
 	return &result, nil
 }
 
-func (c *Cache) createTables() (sql.Result, error) {
+func (c *CacheSQLite) createTables() (sql.Result, error) {
 	schema := `
 		CREATE TABLE IF NOT EXISTS artists (
 			id TEXT PRIMARY KEY,

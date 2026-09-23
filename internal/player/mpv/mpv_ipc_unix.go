@@ -1,6 +1,6 @@
 //go:build unix
 
-package player
+package mpv
 
 import (
 	"fmt"

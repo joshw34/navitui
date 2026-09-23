@@ -5,11 +5,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
-	"github.com/joshw34/navitui/internal/cache"
-	"github.com/joshw34/navitui/internal/client"
+	"github.com/joshw34/navitui/internal/cache/cache_sqlite"
+	"github.com/joshw34/navitui/internal/client/navidrome"
 	"github.com/joshw34/navitui/internal/controller"
-	"github.com/joshw34/navitui/internal/player"
+	"github.com/joshw34/navitui/internal/player/mpv"
+	"github.com/joshw34/navitui/internal/startup"
+	"github.com/joshw34/navitui/internal/types"
 	"github.com/joshw34/navitui/internal/ui"
 )
 
@@ -20,9 +21,13 @@ func main() {
 	}
 	log.SetOutput(f)
 	defer func() { _ = f.Close() }()
-	loadEnv()
-	srv := client.New(os.Getenv("NV_URL"), os.Getenv("NV_USER"), os.Getenv("NV_PASS"))
-	db, err := cache.New()
+
+	srv, _, err := startup.RunStartup(serverFactory)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	db, err := cache_sqlite.New()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -30,7 +35,7 @@ func main() {
 	defer func() {
 		_ = db.Data.Close()
 	}()
-	play, err := player.New()
+	play, err := mpv.New()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -53,10 +58,10 @@ func main() {
 	}
 }
 
-func loadEnv() {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Failed to load .env")
-		os.Exit(1)
+func serverFactory(serverType string, cred startup.Credentials) (types.Server, error) {
+	switch serverType {
+	case "navidrome":
+		return navidrome.New(cred.BaseUrl, cred.User, cred.Password)
 	}
+	return nil, fmt.Errorf("invalid server type: %s", serverType)
 }

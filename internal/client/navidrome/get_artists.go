@@ -1,8 +1,8 @@
-package client
+package navidrome
 
 import "github.com/joshw34/navitui/internal/types"
 
-func (c *Client) GetArtists() ([]types.Artist, error) {
+func (c *Navidrome) GetArtists() ([]types.Artist, error) {
 	r, err := c.serverRequest("getArtists", nil)
 	if err != nil {
 		return nil, err
@@ -10,7 +10,7 @@ func (c *Client) GetArtists() ([]types.Artist, error) {
 	return c.extractArtists(r), nil
 }
 
-func (c *Client) extractArtists(r *jsonResponse) []types.Artist {
+func (c *Navidrome) extractArtists(r *jsonResponse) []types.Artist {
 	var result []types.Artist
 	indexes := r.SubResp.AllArtists.Indexes
 

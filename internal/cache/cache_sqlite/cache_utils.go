@@ -1,4 +1,4 @@
-package cache
+package cache_sqlite
 
 import "encoding/json"
 

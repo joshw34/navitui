@@ -1,10 +1,10 @@
-package cache
+package cache_sqlite
 
 import (
 	"github.com/joshw34/navitui/internal/types"
 )
 
-func (c *Cache) GetArtists() ([]types.Artist, error) {
+func (c *CacheSQLite) GetArtists() ([]types.Artist, error) {
 	query := `SELECT id, name, albumCount
 			  FROM artists
 			  ORDER BY name;`
@@ -31,7 +31,7 @@ func (c *Cache) GetArtists() ([]types.Artist, error) {
 	return result, nil
 }
 
-func (c *Cache) GetAlbumsByArtist(searchID string) ([]types.Album, error) {
+func (c *CacheSQLite) GetAlbumsByArtist(searchID string) ([]types.Album, error) {
 	query := `
 		SELECT id, artistId, name, artist, genres, year, duration, songCount
 		FROM albums
@@ -72,7 +72,7 @@ func (c *Cache) GetAlbumsByArtist(searchID string) ([]types.Album, error) {
 	return result, nil
 }
 
-func (c *Cache) GetAllAlbums() ([]types.Album, error) {
+func (c *CacheSQLite) GetAllAlbums() ([]types.Album, error) {
 	query := `
 		SELECT id, artistId, name, artist, genres, year, duration, songCount
 		FROM albums
@@ -109,7 +109,7 @@ func (c *Cache) GetAllAlbums() ([]types.Album, error) {
 	return result, nil
 }
 
-func (c *Cache) GetSongsByAlbum(searchID string) ([]types.Song, error) {
+func (c *CacheSQLite) GetSongsByAlbum(searchID string) ([]types.Song, error) {
 	query := `
 		SELECT id, artistId, albumId, artist, album, title, filetype, track, year, duration, disc
 		FROM songs
@@ -142,7 +142,7 @@ func (c *Cache) GetSongsByAlbum(searchID string) ([]types.Song, error) {
 	return result, nil
 }
 
-func (c *Cache) GetAllSongs() ([]types.Song, error) {
+func (c *CacheSQLite) GetAllSongs() ([]types.Song, error) {
 	query := `
 		SELECT id, artistId, albumId, artist, album, title, filetype, track, year, duration, disc
 		FROM songs

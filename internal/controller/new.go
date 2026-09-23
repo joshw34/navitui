@@ -5,16 +5,13 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/joshw34/navitui/internal/cache"
-	"github.com/joshw34/navitui/internal/client"
-	"github.com/joshw34/navitui/internal/player"
 	"github.com/joshw34/navitui/internal/types"
 )
 
 type Controller struct {
-	srv  *client.Client
-	db   *cache.Cache
-	play *player.Player
+	srv  types.Server
+	db   types.Cache
+	play types.Player
 	PlayerState
 	UIUpdate func(Update)
 }
@@ -32,7 +29,7 @@ type PlayerState struct {
 	reqIDMutex      sync.Mutex
 }
 
-func New(srv *client.Client, db *cache.Cache, play *player.Player) *Controller {
+func New(srv types.Server, db types.Cache, play types.Player) *Controller {
 	c := &Controller{
 		srv:          srv,
 		db:           db,

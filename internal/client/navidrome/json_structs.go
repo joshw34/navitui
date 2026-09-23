@@ -1,4 +1,4 @@
-package client
+package navidrome
 
 type jsonResponse struct {
 	SubResp jsonSubsonicResponse `json:"subsonic-response"`

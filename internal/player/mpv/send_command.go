@@ -1,4 +1,4 @@
-package player
+package mpv
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ type ipcCommand struct {
 	RequestID uint64 `json:"request_id,omitempty"`
 }
 
-func (p *Player) sendCommand(reqId uint64, args ...any) error {
+func (p *Mpv) sendCommand(reqId uint64, args ...any) error {
 	cmd := ipcCommand{Command: args, RequestID: reqId}
 	data, err := json.Marshal(cmd)
 	if err != nil {
@@ -22,7 +22,7 @@ func (p *Player) sendCommand(reqId uint64, args ...any) error {
 	return err
 }
 
-func (p *Player) PlaySong(reqId uint64, url string) error {
+func (p *Mpv) PlaySong(reqId uint64, url string) error {
 	err := p.sendCommand(reqId, "loadfile", url, "replace")
 	if err != nil {
 		return err
@@ -30,22 +30,22 @@ func (p *Player) PlaySong(reqId uint64, url string) error {
 	return nil
 }
 
-func (p *Player) Stop() error {
+func (p *Mpv) Stop() error {
 	return p.sendCommand(0, "stop")
 }
 
-func (p *Player) TogglePause() error {
+func (p *Mpv) TogglePause() error {
 	return p.sendCommand(0, "cycle", "pause")
 }
 
-func (p *Player) Quit() error {
+func (p *Mpv) Quit() error {
 	return p.sendCommand(0, "quit")
 }
 
-func (p *Player) observeTimePos() error {
+func (p *Mpv) observeTimePos() error {
 	return p.sendCommand(0, "observe_property", 0, "time-pos")
 }
 
-func (p *Player) Seek(t float64) error {
+func (p *Mpv) Seek(t float64) error {
 	return p.sendCommand(0, "set_property", "time-pos", t)
 }

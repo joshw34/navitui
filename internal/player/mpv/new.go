@@ -1,16 +1,21 @@
-package player
+package mpv
 
 import (
 	"net"
 	"os/exec"
 	"sync"
+
+	"github.com/joshw34/navitui/internal/player"
+	"github.com/joshw34/navitui/internal/types"
 )
 
-type Player struct {
+var _ types.Player = (*Mpv)(nil)
+
+type Mpv struct {
 	cmd  *exec.Cmd
 	conn net.Conn
 	pending
-	onEvent func(Event) // Set during controller.New()
+	onEvent func(player.Event) // Set during controller.New()
 }
 
 type pending struct {
@@ -19,7 +24,7 @@ type pending struct {
 	mu           sync.Mutex
 }
 
-func New() (player *Player, err error) {
+func New() (player *Mpv, err error) {
 	cmd := exec.Command("mpv", "--idle", "--input-ipc-server="+ipcSocketPath, "--no-video")
 	if err := cmd.Start(); err != nil {
 		return nil, err
@@ -29,7 +34,7 @@ func New() (player *Player, err error) {
 	if err != nil {
 		return nil, err
 	}
-	p := &Player{cmd: cmd, conn: conn}
+	p := &Mpv{cmd: cmd, conn: conn}
 	p.startReader()
 	p.pendingPlays = map[uint64]uint64{}
 	err = p.observeTimePos()
@@ -39,15 +44,15 @@ func New() (player *Player, err error) {
 	return p, nil
 }
 
-func (p *Player) SetEventHandler(fn func(Event)) {
+func (p *Mpv) SetEventHandler(fn func(player.Event)) {
 	p.onEvent = fn
 }
 
-func (p *Player) startReader() {
+func (p *Mpv) startReader() {
 	go p.readLoop()
 }
 
-func (p *Player) Close() error {
+func (p *Mpv) Close() error {
 	_ = p.Quit()
 	_ = p.conn.Close()
 	return p.cmd.Wait()

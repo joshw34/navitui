@@ -1,4 +1,4 @@
-package client
+package navidrome
 
 import (
 	"net/url"
@@ -7,7 +7,7 @@ import (
 	"github.com/joshw34/navitui/internal/types"
 )
 
-func (c *Client) GetAlbumsByArtist(searchId string) ([]types.Album, error) {
+func (c *Navidrome) GetAlbumsByArtist(searchId string) ([]types.Album, error) {
 	v := url.Values{}
 	v.Set("id", searchId)
 	r, err := c.serverRequest("getArtist", v)
@@ -17,7 +17,7 @@ func (c *Client) GetAlbumsByArtist(searchId string) ([]types.Album, error) {
 	return c.extractAlbums(r.SubResp.ArtistAlbums.Albums)
 }
 
-func (c *Client) GetAllAlbums() ([]types.Album, error) {
+func (c *Navidrome) GetAllAlbums() ([]types.Album, error) {
 	offset := 0
 	size := 500
 	var result []types.Album
@@ -42,7 +42,7 @@ func (c *Client) GetAllAlbums() ([]types.Album, error) {
 	}
 }
 
-func (c *Client) extractAlbums(data []jsonAlbum) ([]types.Album, error) {
+func (c *Navidrome) extractAlbums(data []jsonAlbum) ([]types.Album, error) {
 	var result []types.Album
 
 	for _, r := range data {
