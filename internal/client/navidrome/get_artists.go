@@ -3,10 +3,12 @@ package navidrome
 import "github.com/joshw34/navitui/internal/types"
 
 func (c *Navidrome) GetArtists() ([]types.Artist, error) {
+	c.logger.File("Server request: GetArtists")
 	r, err := c.serverRequest("getArtists", nil)
 	if err != nil {
 		return nil, err
 	}
+	c.logger.File("Server request: GetArtists -> success")
 	return c.extractArtists(r), nil
 }
 

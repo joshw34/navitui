@@ -7,20 +7,31 @@ import (
 )
 
 func (c *CacheSQLite) UpdateArtists(a []types.Artist, resync bool) error {
+	c.logger.File("Cache Update: Artists, Resync: %v", resync)
 	var tx *sql.Tx
 	var stmt *sql.Stmt
 	var err error
-	tx, err = c.data.Begin()
-	if err != nil {
+
+	if tx, err = c.data.Begin(); err != nil {
+		c.logger.File("Cache Update: Artists: Failed to begin transaction: %v", err)
 		return err
 	}
-	if resync {
-		_, err = tx.Exec("DELETE FROM artists;")
+
+	defer func() {
 		if err != nil {
-			_ = tx.Rollback()
+			if rbErr := tx.Rollback(); rbErr != nil {
+				c.logger.File("Cache Update: Artists: Failed to rollback transaction: %v", rbErr)
+			}
+		}
+	}()
+
+	if resync {
+		if _, err = tx.Exec("DELETE FROM artists;"); err != nil {
+			c.logger.File("Cache Update: Artists: Failed to delete existing artists: %v", err)
 			return err
 		}
 	}
+
 	stmt, err = tx.Prepare(`
 		INSERT INTO artists (id, name, albumCount)
 		VALUES (?, ?, ?)
@@ -29,18 +40,26 @@ func (c *CacheSQLite) UpdateArtists(a []types.Artist, resync bool) error {
 			albumCount = excluded.albumCount;
 	`)
 	if err != nil {
-		_ = tx.Rollback()
+		c.logger.File("Cache Update: Artists: Failed to prepare statement: %v", err)
 		return err
 	}
 	defer func() { _ = stmt.Close() }()
+
 	for _, artist := range a {
-		_, err := stmt.Exec(artist.ID, artist.Name, artist.AlbumCount)
-		if err != nil {
-			_ = tx.Rollback()
+		if _, err = stmt.Exec(artist.ID, artist.Name, artist.AlbumCount); err != nil {
+			c.logger.File("Cache Update: Artists: Failed to insert row: %v", err)
 			return err
 		}
+
 	}
-	return tx.Commit()
+
+	if err = tx.Commit(); err != nil {
+		c.logger.File("Cache Update: Artists: Failed to commit transaction: %v", err)
+		return err
+	}
+
+	c.logger.File("Cache Update: Artists, Resync: %v -> success", resync)
+	return nil
 }
 
 func (c *CacheSQLite) UpdateAlbums(a []types.Album, resync bool) error {

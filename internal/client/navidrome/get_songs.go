@@ -8,16 +8,19 @@ import (
 )
 
 func (c *Navidrome) GetSongsByAlbum(searchId string) ([]types.Song, error) {
+	c.logger.File("Server Request: GetSongsByAlbum, AlbumId: %s", searchId)
 	v := url.Values{}
 	v.Set("id", searchId)
 	r, err := c.serverRequest("getAlbum", v)
 	if err != nil {
 		return nil, err
 	}
-	return c.extractSongs(r.SubResp.AlbumSongs.Songs)
+	c.logger.File("Server Request: GetSongsByAlbum, AlbumId: %s -> success", searchId)
+	return c.extractSongs(r.SubResp.AlbumSongs.Songs), nil
 }
 
 func (c *Navidrome) GetAllSongs() ([]types.Song, error) {
+	c.logger.File("Server Request: GetAllSongs")
 	offset := 0
 	size := 500
 	var result []types.Song
@@ -33,18 +36,16 @@ func (c *Navidrome) GetAllSongs() ([]types.Song, error) {
 			return nil, err
 		}
 		if r.SubResp.Search2.Songs == nil {
+			c.logger.File("Server Request: GetAllSongs -> success")
 			return result, nil
 		}
-		extracted, err := c.extractSongs(r.SubResp.Search2.Songs)
-		if err != nil {
-			return nil, err
-		}
+		extracted := c.extractSongs(r.SubResp.Search2.Songs)
 		result = append(result, extracted...)
 		offset += size
 	}
 }
 
-func (c *Navidrome) extractSongs(data []jsonSong) ([]types.Song, error) {
+func (c *Navidrome) extractSongs(data []jsonSong) []types.Song {
 	var result []types.Song
 
 	for _, r := range data {
@@ -62,5 +63,6 @@ func (c *Navidrome) extractSongs(data []jsonSong) ([]types.Song, error) {
 		s.Disc = r.Disc
 		result = append(result, s)
 	}
-	return result, nil
+
+	return result
 }

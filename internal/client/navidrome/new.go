@@ -16,13 +16,16 @@ type Navidrome struct {
 	version  string
 	client   string
 	format   string
+	logger   *types.NavituiLogger
 }
 
-func New(baseURL, username, password string) (*Navidrome, error) {
+func New(baseURL, username, password string, logger *types.NavituiLogger) (*Navidrome, error) {
 	var client Navidrome
 	var err error
+	client.logger = logger
 	client.baseURL, err = url.JoinPath(baseURL, "rest")
 	if err != nil {
+		logger.File("Failed to build baseURL: %v", err)
 		return nil, err
 	}
 	client.username = username

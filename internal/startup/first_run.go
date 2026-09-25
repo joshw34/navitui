@@ -67,7 +67,7 @@ func promptError(errorInfo string, msg promptMessage, logger *types.NavituiLogge
 		fmt.Println(msg)
 		password, err := reader.ReadString('\n')
 		if err != nil {
-			logger.File("Error prompt failure: %s", err.Error())
+			logger.File("Error prompt failure: %v", err)
 			return "", err
 		}
 		p := strings.TrimSpace(password)

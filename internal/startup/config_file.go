@@ -45,13 +45,13 @@ const (
 func (t *config) parseConfig(filePath string, logger *types.NavituiLogger) error {
 	f, err := os.OpenFile(filePath, os.O_RDONLY, 0)
 	if err != nil {
-		logger.File("Failed to open config file: %s", err.Error())
+		logger.File("Failed to open config file: %v", err)
 		return err
 	}
 	defer f.Close()
 	_, err = toml.NewDecoder(f).Decode(t)
 	if err != nil {
-		logger.File("Failed to parse config file: %s", err.Error())
+		logger.File("Failed to parse config file: %v", err)
 		return err
 	}
 	logger.File("Successfully parsed config file")
@@ -61,7 +61,7 @@ func (t *config) parseConfig(filePath string, logger *types.NavituiLogger) error
 func (t *config) saveConfig(filePath string, logger *types.NavituiLogger) {
 	f, err := os.Create(filePath)
 	if err != nil {
-		logger.File("Failed to open/create config file: %s", err.Error())
+		logger.File("Failed to open/create config file: %v", err)
 		_, _ = promptError("Unable to open/create config file, configuration will not be saved", ErrorContinue, logger)
 		return
 	}
@@ -73,7 +73,7 @@ func (t *config) saveConfig(filePath string, logger *types.NavituiLogger) {
 	encoder := toml.NewEncoder(f)
 	err = encoder.Encode(t)
 	if err != nil {
-		logger.File("Failed to save config file: %s", err.Error())
+		logger.File("Failed to save config file: %v", err)
 		_, _ = promptError("Unable to save config file, configuration will not be saved", ErrorContinue, logger)
 		return
 	}
@@ -95,13 +95,13 @@ func (t *config) validateConfig(logger *types.NavituiLogger) configValidationSta
 	}
 
 	if status != ValidationSuccess {
-		logger.File("Failed to validate config file: %s", getValidationFailureMsg(status))
+		logger.File("Failed to validate config file: %v", getValidationFailureMsg(status))
 		return status
 	}
 
 	u, err := url.Parse(t.Server)
 	if err != nil {
-		logger.File("Failed to parse server URL: %s", getValidationFailureMsg(InvalidServer))
+		logger.File("Failed to parse server URL: %v", getValidationFailureMsg(InvalidServer))
 		return InvalidServer
 	}
 	u.Host = net.JoinHostPort(u.Hostname(), strconv.Itoa(t.Port))
@@ -120,7 +120,7 @@ func (t *config) getPassword(logger *types.NavituiLogger) error {
 	case "keyring":
 		p, err := keyring.Get("navitui", t.User)
 		if err != nil {
-			logger.File("Failed to get password from keyring: %s", err.Error())
+			logger.File("Failed to get password from keyring: %v", err)
 			return err
 		}
 		t.Password = p
@@ -130,7 +130,7 @@ func (t *config) getPassword(logger *types.NavituiLogger) error {
 		ClearScreen()
 		p, err := promptText("", PasswordPrompt)
 		if err != nil {
-			logger.File("Failed to get password from prompt: %s", err.Error())
+			logger.File("Failed to get password from prompt: %v", err)
 			return err
 		}
 		t.Password = p
@@ -143,7 +143,7 @@ func (t *config) savePassword(logger *types.NavituiLogger) {
 	err := keyring.Set("navitui", t.User, t.Password)
 	if err != nil {
 		t.PasswordStore = "prompt"
-		logger.File("Failed to save password to keyring: %s", err.Error())
+		logger.File("Failed to save password to keyring: %v", err)
 		_, _ = promptError("Unable to save password to keyring, password will be required on startup", ErrorContinue, logger) // Ignore prompt error -> continue
 	} else {
 		t.PasswordStore = "keyring"
@@ -156,25 +156,25 @@ func (t *config) getUserInput(logger *types.NavituiLogger) error {
 
 	t.User, err = promptText(welcomeMessage, UsernamePrompt)
 	if err != nil {
-		logger.File("Failed to get user input: %s", err.Error())
+		logger.File("Failed to get user input: %v", err)
 		return err
 	}
 
 	t.Password, err = promptText(welcomeMessage, PasswordPrompt)
 	if err != nil {
-		logger.File("Failed to get user input: %s", err.Error())
+		logger.File("Failed to get user input: %v", err)
 		return err
 	}
 
 	t.Server, err = promptText(welcomeMessage, ServerPrompt)
 	if err != nil {
-		logger.File("Failed to get user input: %s", err.Error())
+		logger.File("Failed to get user input: %v", err)
 		return err
 	}
 
 	t.Port, err = promptInt(welcomeMessage, PortPrompt)
 	if err != nil {
-		logger.File("Failed to get user input: %s", err.Error())
+		logger.File("Failed to get user input: %v", err)
 		return err
 	}
 
@@ -189,9 +189,9 @@ func (t *config) tryPing(getServer srvbuild, logger *types.NavituiLogger) (types
 		BaseUrl:  t.FullURL,
 		User:     t.User,
 		Password: t.Password,
-	})
+	}, logger)
 	if err != nil {
-		logger.File("Failed to connect to server: %s", err.Error())
+		logger.File("Failed to connect to server: %v", err)
 		return nil, types.PingServerError
 	}
 	res := srv.PingTest()
@@ -200,7 +200,7 @@ func (t *config) tryPing(getServer srvbuild, logger *types.NavituiLogger) (types
 		logger.File("Successfully connected to server")
 		return srv, res
 	default:
-		logger.File("Failed to connect to server: %s", getPingFailureMsg(res))
+		logger.File("Failed to connect to server: %v", getPingFailureMsg(res))
 		return nil, res
 	}
 }

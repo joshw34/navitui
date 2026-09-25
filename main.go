@@ -19,12 +19,12 @@ func main() {
 	var err error
 	var srv types.Server
 	if srv, _, err = startup.RunStartup(serverFactory, logger); err != nil {
-		logger.Both(err.Error())
+		logger.Both("Startup failed: %v", err)
 		return
 	}
 
 	var db types.Cache
-	if db, err = cache_sqlite.New(); err != nil {
+	if db, err = cache_sqlite.New(logger); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -49,10 +49,10 @@ func main() {
 	}
 }
 
-func serverFactory(serverType string, cred startup.Credentials) (types.Server, error) {
+func serverFactory(serverType string, cred startup.Credentials, logger *types.NavituiLogger) (types.Server, error) {
 	switch serverType {
 	case "navidrome":
-		return navidrome.New(cred.BaseUrl, cred.User, cred.Password)
+		return navidrome.New(cred.BaseUrl, cred.User, cred.Password, logger)
 	}
 	return nil, fmt.Errorf("invalid server type: %s", serverType)
 }

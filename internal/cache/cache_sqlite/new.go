@@ -16,16 +16,21 @@ var _ types.Cache = (*CacheSQLite)(nil)
 type CacheSQLite struct {
 	data          *sql.DB
 	syncOnStartup bool
+	logger        *types.NavituiLogger
 }
 
 func (c *CacheSQLite) Close() {
 	_ = c.data.Close()
 }
 
-func New() (*CacheSQLite, error) {
+func New(logger *types.NavituiLogger) (*CacheSQLite, error) {
+	var c CacheSQLite
+	c.logger = logger
+
 	cacheDir := filepath.Join(xdg.CacheHome, "navitui")
 	err := os.MkdirAll(cacheDir, 0o700)
 	if err != nil {
+		c.logger.File("failed to create the cache directory: %v", err)
 		return nil, err
 	}
 
@@ -36,18 +41,23 @@ func New() (*CacheSQLite, error) {
 	dbPragmas := "?_pragma=foreign_keys=1"
 	db, err := sql.Open("sqlite", dbFile+dbPragmas)
 	if err != nil {
+		c.logger.File("failed to open the database: %v", err)
+		return nil, err
+	}
+	if err := db.Ping(); err != nil {
+		c.logger.File("failed to ping database: %v", err)
 		return nil, err
 	}
 
-	var result CacheSQLite
-	result.data = db
-	result.syncOnStartup = newDB
-	_, err = result.createTables()
+	c.data = db
+	c.syncOnStartup = newDB
+	_, err = c.createTables()
 	if err != nil {
 		_ = db.Close()
+		c.logger.File("failed to create the database tables: %v", err)
 		return nil, err
 	}
-	return &result, nil
+	return &c, nil
 }
 
 func (c *CacheSQLite) createTables() (sql.Result, error) {

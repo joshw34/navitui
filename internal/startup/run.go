@@ -8,7 +8,7 @@ import (
 	"github.com/joshw34/navitui/internal/types"
 )
 
-type srvbuild func(string, Credentials) (types.Server, error)
+type srvbuild func(string, Credentials, *types.NavituiLogger) (types.Server, error)
 
 type ConfigOptions struct {
 	Cred Credentials
@@ -23,15 +23,15 @@ type Credentials struct {
 func RunStartup(getServer srvbuild, logger *types.NavituiLogger) (types.Server, ConfigOptions, error) {
 	configFile, err := xdg.ConfigFile("navitui/navitui.toml")
 	if err != nil { // Could not generate config file path -> return error
-		return nil, ConfigOptions{}, fmt.Errorf("could not generate config file path: %w", err)
+		return nil, ConfigOptions{}, fmt.Errorf("could not generate config file path: %v", err)
 	}
 
 	if _, err := os.Stat(configFile); err != nil {
 		if os.IsNotExist(err) { // Config file doesn't exist -> run setup
-			logger.File("Config file %s not found, starting setup wizard", configFile)
+			logger.File("Config file %v not found, starting setup wizard", configFile)
 			return firstRun(getServer, configFile, logger)
 		}
-		return nil, ConfigOptions{}, fmt.Errorf("could not access config file %s: %w", configFile, err) // Config file exists, not accessible -> return error
+		return nil, ConfigOptions{}, fmt.Errorf("could not access config file %v: %v", configFile, err) // Config file exists, not accessible -> return error
 	}
 
 	var parsed config
