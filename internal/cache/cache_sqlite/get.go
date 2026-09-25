@@ -8,7 +8,7 @@ func (c *CacheSQLite) GetArtists() ([]types.Artist, error) {
 	query := `SELECT id, name, albumCount
 			  FROM artists
 			  ORDER BY name;`
-	rows, err := c.Data.Query(query)
+	rows, err := c.data.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (c *CacheSQLite) GetAlbumsByArtist(searchID string) ([]types.Album, error) 
 		    year,
 		    name COLLATE NOCASE;`
 
-	rows, err := c.Data.Query(query, searchID)
+	rows, err := c.data.Query(query, searchID)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (c *CacheSQLite) GetAllAlbums() ([]types.Album, error) {
 		FROM albums
 		ORDER BY name;`
 
-	rows, err := c.Data.Query(query)
+	rows, err := c.data.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func (c *CacheSQLite) GetSongsByAlbum(searchID string) ([]types.Song, error) {
     		track,
     		title COLLATE NOCASE;`
 
-	rows, err := c.Data.Query(query, searchID)
+	rows, err := c.data.Query(query, searchID)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (c *CacheSQLite) GetAllSongs() ([]types.Song, error) {
 		FROM songs
 		ORDER BY title;`
 
-	rows, err := c.Data.Query(query)
+	rows, err := c.data.Query(query)
 	if err != nil {
 		return nil, err
 	}

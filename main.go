@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/joshw34/navitui/internal/cache/cache_sqlite"
 	"github.com/joshw34/navitui/internal/client/navidrome"
@@ -15,44 +13,37 @@ import (
 )
 
 func main() {
-	f, ferr := os.OpenFile("./logfile.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if ferr != nil {
-		fmt.Println(ferr)
-	}
-	log.SetOutput(f)
-	defer func() { _ = f.Close() }()
+	logger := types.LoggerSetup()
+	defer logger.Close()
 
-	srv, _, err := startup.RunStartup(serverFactory)
-	if err != nil {
+	var err error
+	var srv types.Server
+	if srv, _, err = startup.RunStartup(serverFactory, logger); err != nil {
+		logger.Both(err.Error())
+		return
+	}
+
+	var db types.Cache
+	if db, err = cache_sqlite.New(); err != nil {
 		fmt.Println(err)
 		return
 	}
-	db, err := cache_sqlite.New()
-	if err != nil {
+	defer db.Close()
+
+	var play types.Player
+	if play, err = mpv.New(); err != nil {
 		fmt.Println(err)
 		return
 	}
-	defer func() {
-		_ = db.Data.Close()
-	}()
-	play, err := mpv.New()
-	if err != nil {
+	defer play.Close()
+
+	var ctrl *controller.Controller
+	if ctrl, err = controller.New(srv, db, play); err != nil {
 		fmt.Println(err)
 		return
 	}
-	defer func() {
-		_ = play.Close()
-	}()
-	ctrl := controller.New(srv, db, play)
-	if db.SyncRequired {
-		err = ctrl.ResyncLibrary()
-	}
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	err = ui.StartUI(ctrl)
-	if err != nil {
+
+	if err = ui.StartUI(ctrl); err != nil {
 		fmt.Println(err)
 		return
 	}

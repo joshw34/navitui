@@ -5,7 +5,7 @@ import (
 )
 
 type Server interface {
-	PingTest(host string, port int) PingResult
+	PingTest() PingResult
 	GetStreamURL(songID string) (string, error)
 	GetArtists() ([]Artist, error)
 	GetAlbumsByArtist(searchId string) ([]Album, error)
@@ -15,6 +15,8 @@ type Server interface {
 }
 
 type Cache interface {
+	SyncRequired() bool
+	Close()
 	GetArtists() ([]Artist, error)
 	GetAlbumsByArtist(searchID string) ([]Album, error)
 	GetAllAlbums() ([]Album, error)
@@ -28,7 +30,7 @@ type Cache interface {
 
 type Player interface {
 	SetEventHandler(fn func(player.Event))
-	Close() error
+	Close()
 	PlaySong(reqId uint64, url string) error
 	Stop() error
 	TogglePause() error

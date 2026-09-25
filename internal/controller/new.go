@@ -2,6 +2,7 @@
 package controller
 
 import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 
@@ -29,7 +30,7 @@ type PlayerState struct {
 	reqIDMutex      sync.Mutex
 }
 
-func New(srv types.Server, db types.Cache, play types.Player) *Controller {
+func New(srv types.Server, db types.Cache, play types.Player) (*Controller, error) {
 	c := &Controller{
 		srv:          srv,
 		db:           db,
@@ -39,8 +40,16 @@ func New(srv types.Server, db types.Cache, play types.Player) *Controller {
 		nowPlaying:   types.Song{},
 		timePos:      -1,
 	}
+
 	c.play.SetEventHandler(c.PlayerEventHandler)
-	return c
+
+	if c.db.SyncRequired() {
+		if err := c.ResyncLibrary(); err != nil {
+			return nil, fmt.Errorf("could not sync library: %w", err)
+		}
+	}
+
+	return c, nil
 }
 
 func (c *Controller) SetUpdateHandler(f func(u Update)) {

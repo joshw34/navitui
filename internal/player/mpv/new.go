@@ -52,8 +52,8 @@ func (p *Mpv) startReader() {
 	go p.readLoop()
 }
 
-func (p *Mpv) Close() error {
+func (p *Mpv) Close() {
 	_ = p.Quit()
 	_ = p.conn.Close()
-	return p.cmd.Wait()
+	_ = p.cmd.Wait()
 }

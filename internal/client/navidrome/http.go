@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"maps"
-	"net"
 	"net/http"
 	"net/url"
-	"strconv"
 
 	"github.com/joshw34/navitui/internal/types"
 )
@@ -21,7 +19,6 @@ func (c *Navidrome) serverRequest(reqType string, extraParams url.Values) (*json
 
 	r, err := http.Get(u)
 	if err != nil {
-
 		return nil, err
 	}
 	defer func() {
@@ -51,17 +48,29 @@ func (c *Navidrome) GetStreamURL(songID string) (string, error) {
 	return c.getURL("stream", v)
 }
 
-func (c *Navidrome) PingTest(host string, port int) types.PingResult {
-	baseURL, err := url.JoinPath(host, "rest", "ping")
+func (c *Navidrome) PingTest() types.PingResult {
+	u, err := c.getURL("ping", nil)
 	if err != nil {
-		return types.URLBuildFailure
+		return types.PingURLBuildFailure
 	}
-	u, err := url.Parse(baseURL)
+	r, err := http.Get(u)
 	if err != nil {
-		return types.URLBuildFailure
+		return types.PingServerError
 	}
-	u.Host = net.JoinHostPort(u.Host, strconv.Itoa(port))
-	return types.AuthFailure
+	defer func() {
+		_ = r.Body.Close()
+	}()
+	if r.StatusCode != http.StatusOK {
+		return types.PingServerError
+	}
+	var resp jsonResponse
+	if err := json.NewDecoder(r.Body).Decode(&resp); err != nil {
+		return types.PingServerError
+	}
+	if resp.SubResp.Status == "failed" {
+		return types.PingAuthFailure
+	}
+	return types.PingSuccess
 }
 
 func (c *Navidrome) getURL(req string, extraParams url.Values) (string, error) {

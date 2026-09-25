@@ -1,45 +1,67 @@
 package startup
 
 import (
-	"net"
-	"net/url"
-	"strconv"
+	"fmt"
+	"os"
 
 	"github.com/adrg/xdg"
 	"github.com/joshw34/navitui/internal/types"
 )
 
+type srvbuild func(string, Credentials) (types.Server, error)
+
 type ConfigOptions struct {
 	Cred Credentials
 }
 
-func RunStartup(getServer func(string, Credentials) (types.Server, error)) (types.Server, ConfigOptions, error) {
+type Credentials struct {
+	BaseUrl  string
+	User     string
+	Password string
+}
+
+func RunStartup(getServer srvbuild, logger *types.NavituiLogger) (types.Server, ConfigOptions, error) {
 	configFile, err := xdg.ConfigFile("navitui/navitui.toml")
-	if err != nil {
-		return nil, ConfigOptions{}, err
+	if err != nil { // Could not generate config file path -> return error
+		return nil, ConfigOptions{}, fmt.Errorf("could not generate config file path: %w", err)
 	}
 
-	var tomlConfig tomlConfigFile
-	err = tomlConfig.parseConfig(configFile)
-	if err != nil {
-		return nil, ConfigOptions{}, err
+	if _, err := os.Stat(configFile); err != nil {
+		if os.IsNotExist(err) { // Config file doesn't exist -> run setup
+			logger.File("Config file %s not found, starting setup wizard", configFile)
+			return firstRun(getServer, configFile, logger)
+		}
+		return nil, ConfigOptions{}, fmt.Errorf("could not access config file %s: %w", configFile, err) // Config file exists, not accessible -> return error
 	}
 
-	if len(tomlConfig.User) != 0 {
-		u, err := url.Parse(tomlConfig.Server)
-		if err != nil {
-			return nil, ConfigOptions{}, err
-		}
-		u.Host = net.JoinHostPort(u.Hostname(), strconv.Itoa(tomlConfig.Port))
-		var cred Credentials
-		cred.User = tomlConfig.User
-		cred.Password = tomlConfig.Password
-		cred.BaseUrl = u.String()
-		srv, err := getServer("navidrome", cred)
-		if err != nil {
-			return nil, ConfigOptions{}, err
-		}
-		return srv, ConfigOptions{Cred: cred}, nil
+	var parsed config
+
+	if err = parsed.parseConfig(configFile, logger); err != nil {
+		_, _ = promptError("Config file '"+configFile+"' could not be parsed: "+err.Error(), ErrorSetupWizard, logger) // Choose exit for manual fix or run setup wizard
+		return firstRun(getServer, configFile, logger)                                                                 // Ignore prompt error -> go to setup wizard
 	}
-	return nil, ConfigOptions{}, nil
+
+	if result := parsed.validateConfig(logger); result == ValidationSuccess {
+		for range 3 {
+			ClearScreen()
+
+			err = parsed.getPassword(logger)
+			if err != nil {
+				_, _ = promptError("Failed to retrieve password", ErrorTryAgain, logger) //Ignore prompt error -> try again
+				continue
+			}
+
+			srv, res := parsed.tryPing(getServer, logger)
+			if srv != nil && res == types.PingSuccess {
+				return srv, ConfigOptions{}, nil // Successful ping --> return server
+			}
+
+			if res == types.PingAuthFailure && parsed.PasswordStore == "keyring" {
+				break
+			}
+			_, _ = promptError(getPingFailureMsg(res), ErrorTryAgain, logger) // Ignore prompt error -> try again
+		}
+	}
+	_, _ = promptError("Unable to connect with current configuration", ErrorSetupWizard, logger) // Ignore prompt error -> go to setup wizard
+	return firstRun(getServer, configFile, logger)
 }

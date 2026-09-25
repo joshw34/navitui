@@ -10,7 +10,7 @@ func (c *CacheSQLite) UpdateArtists(a []types.Artist, resync bool) error {
 	var tx *sql.Tx
 	var stmt *sql.Stmt
 	var err error
-	tx, err = c.Data.Begin()
+	tx, err = c.data.Begin()
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (c *CacheSQLite) UpdateAlbums(a []types.Album, resync bool) error {
 	var tx *sql.Tx
 	var stmt *sql.Stmt
 	var err error
-	tx, err = c.Data.Begin()
+	tx, err = c.data.Begin()
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (c *CacheSQLite) UpdateSongs(s []types.Song, resync bool) error {
 	var tx *sql.Tx
 	var stmt *sql.Stmt
 	var err error
-	tx, err = c.Data.Begin()
+	tx, err = c.data.Begin()
 	if err != nil {
 		return err
 	}

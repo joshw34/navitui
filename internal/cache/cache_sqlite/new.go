@@ -14,8 +14,12 @@ import (
 var _ types.Cache = (*CacheSQLite)(nil)
 
 type CacheSQLite struct {
-	Data         *sql.DB
-	SyncRequired bool
+	data          *sql.DB
+	syncOnStartup bool
+}
+
+func (c *CacheSQLite) Close() {
+	_ = c.data.Close()
 }
 
 func New() (*CacheSQLite, error) {
@@ -36,8 +40,8 @@ func New() (*CacheSQLite, error) {
 	}
 
 	var result CacheSQLite
-	result.Data = db
-	result.SyncRequired = newDB
+	result.data = db
+	result.syncOnStartup = newDB
 	_, err = result.createTables()
 	if err != nil {
 		_ = db.Close()
@@ -86,5 +90,9 @@ func (c *CacheSQLite) createTables() (sql.Result, error) {
 		CREATE INDEX IF NOT EXISTS idx_songs_title ON songs(title COLLATE NOCASE);
 		CREATE INDEX IF NOT EXISTS idx_songs_album_track ON songs(albumId, disc, track);`
 
-	return c.Data.Exec(schema)
+	return c.data.Exec(schema)
+}
+
+func (c *CacheSQLite) SyncRequired() bool {
+	return c.syncOnStartup
 }
