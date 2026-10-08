@@ -32,14 +32,6 @@ func (p *Mpv) readLoop() {
 	scanner := bufio.NewScanner(p.conn)
 	for scanner.Scan() {
 		line := scanner.Bytes()
-		var logcheck jsonEvent
-		err := json.Unmarshal(line, &logcheck)
-		if err != nil {
-			log.Println("error unmarshalling event:", err)
-		}
-		if logcheck.Name != "time-pos" {
-			log.Printf("%s %s", "READ: ", string(line))
-		}
 		p.handleLine(line)
 	}
 }

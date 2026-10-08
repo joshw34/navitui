@@ -2,7 +2,6 @@ package mpv
 
 import (
 	"encoding/json"
-	"log"
 )
 
 type ipcCommand struct {
@@ -18,7 +17,6 @@ func (p *Mpv) sendCommand(reqId uint64, args ...any) error {
 	}
 	data = append(data, '\n')
 	_, err = p.conn.Write(data)
-	log.Printf("%s %s", "SEND: ", string(data))
 	return err
 }
 
