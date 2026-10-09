@@ -1,0 +1,13 @@
+{
+  "name": "navitui-dev",
+  "image": "ghcr.io/joshw34/dev_containers/navitui:latest",
+  "containerUser": "root",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
+  "capAdd": ["SYS_PTRACE"],
+  "securityOpt": ["seccomp=unconfined", "label=disable"],
+  "mounts": ["source=${localEnv:XDG_RUNTIME_DIR}/pulse,target=/run/pulse,type=bind"],
+  "containerEnv": {
+    "PULSE_SERVER": "unix:/run/pulse/native"
+  }
+}

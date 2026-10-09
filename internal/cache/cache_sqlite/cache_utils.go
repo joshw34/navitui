@@ -1,6 +1,8 @@
 package cache_sqlite
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 func stringSliceToJSON(s []string) ([]byte, error) {
 	return json.Marshal(s)

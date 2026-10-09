@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/internal/cache/cache_sqlite/get.go" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/internal/cache/cache_sqlite/new.go" dialect="SQLite" />
+    <file url="file://$PROJECT_DIR$/internal/cache/cache_sqlite/get.go" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/internal/cache/cache_sqlite/update.go" dialect="SQLite" />
     <file url="PROJECT" dialect="SQLite" />
   </component>

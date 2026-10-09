@@ -17,7 +17,7 @@ func (c *Controller) GetArtists() ([]types.Artist, error) {
 			return nil, err
 		}
 		// update db
-		err = c.db.UpdateArtists(a, false)
+		err = c.db.UpdateCache(a, nil, nil, true)
 		if err != nil {
 			return nil, err
 		}
@@ -36,7 +36,7 @@ func (c *Controller) GetAllAlbums() ([]types.Album, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = c.db.UpdateAlbums(a, false)
+		err = c.db.UpdateCache(nil, a, nil, true)
 		if err != nil {
 			return nil, err
 		}
@@ -55,7 +55,7 @@ func (c *Controller) GetAllSongs() ([]types.Song, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = c.db.UpdateSongs(s, false)
+		err = c.db.UpdateCache(nil, nil, s, true)
 		if err != nil {
 			return nil, err
 		}
@@ -69,15 +69,7 @@ func (c *Controller) ResyncLibrary() error {
 	if err != nil {
 		return err
 	}
-	err = c.db.UpdateArtists(newArtists, true)
-	if err != nil {
-		return err
-	}
 	newAlbums, err := c.srv.GetAllAlbums()
-	if err != nil {
-		return err
-	}
-	err = c.db.UpdateAlbums(newAlbums, true)
 	if err != nil {
 		return err
 	}
@@ -85,10 +77,7 @@ func (c *Controller) ResyncLibrary() error {
 	if err != nil {
 		return err
 	}
-	err = c.db.UpdateSongs(newSongs, true)
-	if err != nil {
-		return err
-	}
+	err = c.db.UpdateCache(newArtists, newAlbums, newSongs, true)
 	return nil
 }
 
@@ -102,7 +91,7 @@ func (c *Controller) GetAlbumsByArtist(searchId string) ([]types.Album, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = c.db.UpdateAlbums(a, false)
+		err = c.db.UpdateCache(nil, a, nil, false)
 		if err != nil {
 			return nil, err
 		}
@@ -121,7 +110,7 @@ func (c *Controller) GetSongsByAlbum(searchId string) ([]types.Song, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = c.db.UpdateSongs(s, false)
+		err = c.db.UpdateCache(nil, nil, s, false)
 		if err != nil {
 			return nil, err
 		}

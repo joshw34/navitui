@@ -22,10 +22,7 @@ type Cache interface {
 	GetAllAlbums() ([]Album, error)
 	GetSongsByAlbum(searchID string) ([]Song, error)
 	GetAllSongs() ([]Song, error)
-	UpdateArtists(a []Artist, resync bool) error
-	UpdateAlbums(a []Album, resync bool) error
-	UpdateSongs(s []Song, resync bool) error
-	ResyncLibrary(artists []Artist, albums []Album, songs []Song) error
+	UpdateCache(artists []Artist, albums []Album, songs []Song, resync bool) error
 }
 
 type Player interface {

@@ -1,172 +1,182 @@
 package cache_sqlite
 
 import (
+	"database/sql"
+
 	"github.com/joshw34/navitui/internal/types"
 )
 
 func (c *CacheSQLite) GetArtists() ([]types.Artist, error) {
-	query := `SELECT id, name, albumCount
-			  FROM artists
-			  ORDER BY name;`
-	rows, err := c.data.Query(query)
-	if err != nil {
+	c.logger.File("Cache Query: GetArtists")
+	var rows *sql.Rows
+	var err error
+
+	if rows, err = c.data.Query(getArtistsQuery); err != nil {
+		c.logger.File("Error: Query Failed: %v", err)
+		return nil, err
+	}
+	defer c.closeRows(rows)
+
+	var result []types.Artist
+	if result, err = c.extractArtists(rows); err != nil {
 		return nil, err
 	}
 
-	defer func() {
-		_ = rows.Close()
-	}()
-
-	var result []types.Artist
-
-	for rows.Next() {
-		var a types.Artist
-		err = rows.Scan(&a.ID, &a.Name, &a.AlbumCount)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, a)
-	}
-
+	c.logger.File("Cache Query: GetArtists --> Success")
 	return result, nil
 }
 
 func (c *CacheSQLite) GetAlbumsByArtist(searchID string) ([]types.Album, error) {
-	query := `
-		SELECT id, artistId, name, artist, genres, year, duration, songCount
-		FROM albums
-		WHERE artistId = ?
-		ORDER BY
-		    CASE WHEN year = 0 THEN 1 ELSE 0 END,
-		    year,
-		    name COLLATE NOCASE;`
+	c.logger.File("Cache Query: GetAlbumsByArtist: ArtistID: %v", searchID)
 
-	rows, err := c.data.Query(query, searchID)
-	if err != nil {
+	var rows *sql.Rows
+	var err error
+
+	if rows, err = c.data.Query(getAlbumsByArtistQuery, searchID); err != nil {
+		c.logger.File("Error: Query Failed: %v", err)
 		return nil, err
 	}
-	defer func() {
-		_ = rows.Close()
-	}()
+	defer c.closeRows(rows)
 
 	var result []types.Album
-
-	for rows.Next() {
-		var a types.Album
-		var genresJSON []byte
-		if err := rows.Scan(&a.ID, &a.ArtistID, &a.Name, &a.Artist, &genresJSON, &a.Year, &a.Duration, &a.SongCount); err != nil {
-			return nil, err
-		}
-		genresSlice, err := jsonToStringSlice(genresJSON)
-		if err != nil {
-			return nil, err
-		}
-		a.Genres = genresSlice
-		result = append(result, a)
-	}
-
-	if err := rows.Err(); err != nil {
+	if result, err = c.extractAlbums(rows); err != nil {
 		return nil, err
 	}
 
+	c.logger.File("Cache Query: GetAlbumsByArtist: ArtistID: %v --> Success", searchID)
 	return result, nil
 }
 
 func (c *CacheSQLite) GetAllAlbums() ([]types.Album, error) {
-	query := `
-		SELECT id, artistId, name, artist, genres, year, duration, songCount
-		FROM albums
-		ORDER BY name;`
+	c.logger.File("Cache Query: GetAllAlbums")
+	var rows *sql.Rows
+	var err error
 
-	rows, err := c.data.Query(query)
-	if err != nil {
+	if rows, err = c.data.Query(getAllAlbumsQuery); err != nil {
+		c.logger.File("Error: Query Failed: %v", err)
 		return nil, err
 	}
-	defer func() {
-		_ = rows.Close()
-	}()
+	defer c.closeRows(rows)
 
 	var result []types.Album
+	if result, err = c.extractAlbums(rows); err != nil {
+		return nil, err
+	}
+
+	c.logger.File("Cache Query: GetAllAlbums --> Success")
+	return result, nil
+}
+
+func (c *CacheSQLite) GetSongsByAlbum(searchID string) ([]types.Song, error) {
+	c.logger.File("Cache Query: GetSongsByAlbum: AlbumID: %v", searchID)
+	var rows *sql.Rows
+	var err error
+	if rows, err = c.data.Query(getSongsByAlbumQuery, searchID); err != nil {
+		c.logger.File("Error: Query Failed: %v", err)
+		return nil, err
+	}
+	defer c.closeRows(rows)
+
+	var result []types.Song
+	if result, err = c.extractSongs(rows); err != nil {
+		return nil, err
+	}
+
+	c.logger.File("Cache Query: GetSongsByAlbum: AlbumID: %v --> Success", searchID)
+	return result, nil
+}
+
+func (c *CacheSQLite) GetAllSongs() ([]types.Song, error) {
+	c.logger.File("Cache Query: GetAllSongs")
+	var rows *sql.Rows
+	var err error
+	if rows, err = c.data.Query(getAllSongsQuery); err != nil {
+		return nil, err
+	}
+	defer c.closeRows(rows)
+
+	var result []types.Song
+	if result, err = c.extractSongs(rows); err != nil {
+		return nil, err
+	}
+
+	c.logger.File("Cache Query: GetAllSongs --> Success")
+	return result, nil
+}
+
+func (c *CacheSQLite) extractArtists(rows *sql.Rows) ([]types.Artist, error) {
+	var result []types.Artist
+
+	for rows.Next() {
+		var a types.Artist
+		if err := rows.Scan(&a.ID, &a.Name, &a.AlbumCount); err != nil {
+			c.logger.File("Error: Scan Failed: %v", err)
+			return nil, err
+		}
+		result = append(result, a)
+	}
+
+	if err := rows.Err(); err != nil {
+		c.logger.File("Error: Row Iteration Failed: %v", err)
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (c *CacheSQLite) extractAlbums(rows *sql.Rows) ([]types.Album, error) {
+	var result []types.Album
+	var err error
 
 	for rows.Next() {
 		var a types.Album
 		var genresJSON []byte
-		if err := rows.Scan(&a.ID, &a.ArtistID, &a.Name, &a.Artist, &genresJSON, &a.Year, &a.Duration, &a.SongCount); err != nil {
+		if err = rows.Scan(&a.ID, &a.ArtistID, &a.Name, &a.Artist, &genresJSON, &a.Year, &a.Duration, &a.SongCount); err != nil {
+			c.logger.File("Error: Scan Failed: %v", err)
 			return nil, err
 		}
-		genresSlice, err := jsonToStringSlice(genresJSON)
-		if err != nil {
+		var genresSlice []string
+		if genresSlice, err = jsonToStringSlice(genresJSON); err != nil {
+			c.logger.File("Error: Failed to parse genres: %v", err)
 			return nil, err
 		}
 		a.Genres = genresSlice
 		result = append(result, a)
 	}
 
-	if err := rows.Err(); err != nil {
+	if err = rows.Err(); err != nil {
+		c.logger.File("Error: Row Iteration Failed: %v", err)
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (c *CacheSQLite) GetSongsByAlbum(searchID string) ([]types.Song, error) {
-	query := `
-		SELECT id, artistId, albumId, artist, album, title, filetype, track, year, duration, disc
-		FROM songs
-		WHERE albumId = ?
-		ORDER BY
-    		CASE WHEN track = 0 THEN 1 ELSE 0 END,
-    		track,
-    		title COLLATE NOCASE;`
-
-	rows, err := c.data.Query(query, searchID)
-	if err != nil {
-		return nil, err
-	}
-
-	defer func() {
-		_ = rows.Close()
-	}()
-
+func (c *CacheSQLite) extractSongs(rows *sql.Rows) ([]types.Song, error) {
 	var result []types.Song
+	var err error
 
 	for rows.Next() {
 		var s types.Song
 		err = rows.Scan(&s.ID, &s.ArtistID, &s.AlbumID, &s.Artist, &s.Album, &s.Title, &s.FileType, &s.Track, &s.Year, &s.Duration, &s.Disc)
 		if err != nil {
+			c.logger.File("Error: Scan Failed: %v", err)
 			return nil, err
 		}
 		result = append(result, s)
+	}
+
+	if err = rows.Err(); err != nil {
+		c.logger.File("Error: Row Iteration Failed: %v", err)
+		return nil, err
 	}
 
 	return result, nil
 }
 
-func (c *CacheSQLite) GetAllSongs() ([]types.Song, error) {
-	query := `
-		SELECT id, artistId, albumId, artist, album, title, filetype, track, year, duration, disc
-		FROM songs
-		ORDER BY title;`
-
-	rows, err := c.data.Query(query)
+func (c *CacheSQLite) closeRows(rows *sql.Rows) {
+	err := rows.Close()
 	if err != nil {
-		return nil, err
+		c.logger.File("Error: Failed to close rows: %v", err)
 	}
-
-	defer func() {
-		_ = rows.Close()
-	}()
-
-	var result []types.Song
-
-	for rows.Next() {
-		var s types.Song
-		err = rows.Scan(&s.ID, &s.ArtistID, &s.AlbumID, &s.Artist, &s.Album, &s.Title, &s.FileType, &s.Track, &s.Year, &s.Duration, &s.Disc)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, s)
-	}
-
-	return result, nil
 }

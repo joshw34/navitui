@@ -132,7 +132,7 @@ func (m rootModel) globalKeyPresses(key tea.Msg) (bool, rootModel, tea.Cmd) {
 		switch key.String() {
 		case "ctrl+c":
 			return true, m, tea.Quit
-		case "esc":
+		case "esc", "q":
 			return true, m.goToPreviousPage(), nil
 		case "1":
 			m.activePane = left

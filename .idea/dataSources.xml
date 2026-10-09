@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="cache" uuid="7835d7ec-6bdb-4d63-95e5-b29e98bafed2">
+    <data-source source="LOCAL" name="cache" uuid="059cf9e2-696c-4a88-8a86-d403ca555150">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$USER_HOME$/.cache/navitui/cache.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:/.jbdevcontainer/navitui/cache.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
